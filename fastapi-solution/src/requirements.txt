@@ -1,0 +1,7 @@
+redis
+elasticsearch[async]
+fastapi
+orjson
+pydantic
+uvicorn
+uvloop
