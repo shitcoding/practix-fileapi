@@ -1,0 +1,60 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    restart: "no"
+    command:
+      - "postgres"
+      - "-c"
+      - "search_path=public,content"
+
+    env_file: ./django/.env
+    expose:
+        - 5432
+    volumes:
+        - ./django/init_db:/docker-entrypoint-initdb.d
+        - postgres_data:/var/lib/postgresql/data
+  nginx:
+    build:
+      context: ./django/nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - static_volume:/code/static:ro
+    depends_on:
+      - django
+
+  django:
+    build: ./django/app
+    restart: "no"
+    env_file: ./django/.env
+    volumes:
+      - static_volume:/code/static
+    expose:
+      - 8000
+    depends_on:
+      - db
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      
+  etl:
+    build: ./etl
+    env_file: ./etl/.env
+    depends_on:
+      - db
+      - elasticsearch
+
+volumes:
+  static_volume:
+  postgres_data:
+  esdata:
