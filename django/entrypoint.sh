@@ -8,6 +8,6 @@ DJANGO_SUPERUSER_USERNAME=admin \
 	DJANGO_SUPERUSER_EMAIL=mail@mail.ru \
 	python manage.py createsuperuser --noinput || true
 
-gunicorn config.wsgi:application --bind 0.0.0.0:8000 -p 8000 --reload
+gunicorn config.wsgi:application --bind 0.0.0.0:8000 -p 8000 --reload --log-level 'info'
 
 exec "$@" 

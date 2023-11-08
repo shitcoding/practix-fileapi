@@ -15,12 +15,12 @@ class UUIDMixin:
 
 @dataclass(frozen=True)
 class CreatedAtMixin:
-    created_at: datetime.datetime
+    created: datetime.datetime
 
 
 @dataclass(frozen=True)
 class ModifiedAtMixin:
-    updated_at: datetime.datetime
+    modified: datetime.datetime
 
 
 @dataclass(frozen=True)
