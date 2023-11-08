@@ -5,11 +5,11 @@ from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 
-DEBUG = False
-
 LIMIT = 100
 
 load_dotenv()
+
+DEBUG = os.environ.get('DEBUG', False) == 'True'
 
 SCHEMA = 'content'
 

@@ -8,15 +8,16 @@ services:
       - "-c"
       - "search_path=public,content"
 
-    env_file: ./django/.env
-    expose:
-        - 5432
+    env_file: ./postgres/.env
+    ports:
+        - 5432:5432
     volumes:
-        - ./django/init_db:/docker-entrypoint-initdb.d
+        - ./postgres/init_pg:/docker-entrypoint-initdb.d
         - postgres_data:/var/lib/postgresql/data
+
   nginx:
     build:
-      context: ./django/nginx/
+      context: ./nginx/
       dockerfile: Dockerfile
     ports:
       - 80:80
@@ -26,18 +27,20 @@ services:
       - django
 
   django:
-    build: ./django/app
+    build: ./django/ 
     restart: "no"
     env_file: ./django/.env
     volumes:
       - static_volume:/code/static
-    expose:
-      - 8000
+      - ./sqlite_to_postgres:/in_data
+    ports:
+      - 8000:8000
     depends_on:
       - db
   
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    restart: always
+    image: elasticsearch:8.10.2
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -46,6 +49,15 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+  
+  redis:
+    restart: always
+    image: redis:latest
+    environment:
+      REDIS_USER: admin
+      REDIS_PASSWORD: admin
+    ports:
+      - 6379:6379
       
   etl:
     build: ./etl

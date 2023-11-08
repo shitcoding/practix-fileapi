@@ -7,9 +7,10 @@ if settings.DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
-    INTERNAL_IPS = [
-        '127.0.0.1',
-    ]
+    import socket  
+    _,_, ips = socket.gethostbyname_ex(socket.gethostname())
+    networks = ['.'.join(ip.split('.')[:-1]) for ip in ips]
+    INTERNAL_IPS = [f'{net}.{ip}' for net in networks for ip in range(1,11) ]
 
     include(
         'components/logger.py'
