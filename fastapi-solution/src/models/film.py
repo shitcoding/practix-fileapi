@@ -1,15 +1,16 @@
-import orjson
+from templ_model import IdMix
+from other_model import Genre,Person
 
-from pydantic import BaseModel
-
-def orjson_dumps(v, *, default):
-    return orjson.dumps(v, default=default).decode()
-
-class Film(BaseModel):
-    id: str
+class Filmwork(IdMix):
+    rating: str | float | None
     title: str
-    description: str
-
-    class Config:
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
+    description: str | None
+    type: str
+    genres_names: list[str] = None
+    genres: list[Genre]
+    directors_names: list[str] = None
+    directors: list[Person]
+    actors_names: list[str] = None
+    actors: list[Person]
+    writers_names: list[str] = None
+    writers: list[Person]
