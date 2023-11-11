@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from api.v1 import films
 from core import config
 from core.logger import LOGGING
-from db import elastic, redis
+from db import elastic_storage, redis_cache
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -21,14 +21,14 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    redis.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_SCHEME}://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+    redis_cache.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
+    elastic_storage.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_SCHEME}://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
 @app.on_event('shutdown')
 async def shutdown():
-    await redis.redis.close()
-    await elastic.es.close()
+    await redis_cache.redis.close()
+    await elastic_storage.es.close()
 
 
 # Подключаем роутер к серверу, указав префикс /v1/films
