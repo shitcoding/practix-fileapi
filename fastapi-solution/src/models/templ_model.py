@@ -6,7 +6,7 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 class IdMix(BaseModel):
-    id: str
+    uuid: str
 
     class Config:
         json_loads = orjson.loads

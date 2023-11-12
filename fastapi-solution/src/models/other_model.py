@@ -5,4 +5,4 @@ class Genre(IdMix):
     name: str
 
 class Person(IdMix):
-    name: str
+    full_name: str
