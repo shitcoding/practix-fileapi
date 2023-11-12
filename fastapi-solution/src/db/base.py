@@ -1,5 +1,5 @@
 import abc
-from models.film import BaseModel
+from pydantic import BaseModel
 
 
 class Cache(abc.ABC):

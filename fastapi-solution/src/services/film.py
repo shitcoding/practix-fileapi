@@ -5,8 +5,8 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from db.elastic import get_elastic
-from db.redis import get_redis
+from db.db import get_cache, get_storage
+from db.base import Cache, Storage
 from models.film import Film
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  
@@ -47,7 +47,7 @@ class FilmService:
 
 @lru_cache()
 def get_film_service(
-        redis: Redis = Depends(get_redis),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+        cache: Cache = Depends(get_cache(model=Film)),
+        storage: Storage = Depends(get_storage(model=Film, index="movies")),
 ) -> FilmService:
-    return FilmService(redis, elastic)
+    return FilmService(cache, storage)

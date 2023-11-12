@@ -1,7 +1,7 @@
 from typing import Optional
 from redis.asyncio import Redis
 
-from models.film import BaseModel
+from pydantic import BaseModel
 from .base import Cache
 
 

@@ -3,7 +3,7 @@ from typing import Optional
 from elasticsearch import AsyncElasticsearch, NotFoundError
 
 from .base import Storage
-from models.film import BaseModel
+from pydantic import BaseModel
 
 es: Optional[AsyncElasticsearch] = None
 
