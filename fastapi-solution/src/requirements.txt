@@ -4,4 +4,4 @@ fastapi
 orjson
 pydantic
 uvicorn
-uvloop
+uvloop==0.17.0 ; sys_platform != "win32" and implementation_name == "cpython"
