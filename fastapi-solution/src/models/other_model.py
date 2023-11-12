@@ -1,4 +1,4 @@
-from templ_model import IdMix
+from models.templ_model import IdMix
 
 
 class Genre(IdMix):

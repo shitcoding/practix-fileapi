@@ -1,7 +1,7 @@
-from templ_model import IdMix
-from other_model import Genre,Person
+from models.templ_model import IdMix
+from models.other_model import Genre,Person
 
-class Filmwork(IdMix):
+class Film(IdMix):
     imdb_rating: str | float | None
     title: str
     description: str | None
