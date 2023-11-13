@@ -50,6 +50,12 @@ class ESPerson:
 
 
 @dataclass
+class ESGenre:
+    id: str
+    name: str
+
+
+@dataclass
 class ESData:
     id:             str
     imdb_rating:    float
