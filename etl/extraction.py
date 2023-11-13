@@ -13,7 +13,7 @@ from psycopg2.extras import DictCursor, DictRow
 from psycopg2.pool import ThreadedConnectionPool
 
 from config.config import LIMIT
-from data import FilmWork, Genre, Person, Role
+from data import FilmWork, Genre, Person, Role, ESGenre
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -128,7 +128,7 @@ class PostgresExtractor:
         return res
 
     @backoff.on_exception(backoff.expo, OperationalError)
-    def extract_data(self, state: State) -> dict[str, FilmWork]:
+    def extract_film_works(self, state: State) -> dict[str, FilmWork]:
         with self._get_db_cursor() as cursor:
             fw_ids = set()
             film_works = self._get_ids_dependent_film_works(update_date=state.update_date,
@@ -183,3 +183,36 @@ class PostgresExtractor:
                 return PostgresExtractor._merge_film_works(film_works=rows)
             logger.info('All movies have actual state')
             return {}
+
+    @backoff.on_exception(backoff.expo, OperationalError)
+    def extract_genres(self, state: State) -> list[ESGenre]:
+        with self._get_db_cursor() as cursor:
+            genre_ids = set()
+            genres = self._get_ids_changed_records(update_date=state.update_date,
+                                                   table=self._tables.genre,
+                                                   limit=LIMIT,
+                                                   offset=state.offset_genre
+                                                   )
+            for genre in genres:
+                # Используются f-строки, так как требуется обернуть id в кавычки
+                genre_ids.add(f"'{genre[0]}'")
+
+            genre_ids_str = ','.join(genre_ids)
+            res = []
+            if genre_ids_str:
+                query = '''SELECT
+                                g.id as g_id, 
+                                g.name as g_name 
+                            FROM {schema}.{g_table} g
+                            WHERE g.id IN ({recs_ids});'''
+
+                cursor.execute(query.format(schema=self._schema,
+                                            g_table=self._tables.genre,
+                                            recs_ids=genre_ids_str))
+
+                rows = cursor.fetchall()
+
+                for row in rows:
+                    res.append(ESGenre(id=row['g_id'], name=row['g_name']))
+            logger.info('All genres have actual state')
+            return res

@@ -2,7 +2,7 @@ from data import ESData, ESPerson, FilmWork, Role
 
 
 class Transformer:
-    def transform_to_es(self, film_works: dict[str, FilmWork]) -> list[ESData]:
+    def transform_film_work_to_es(self, film_works: dict[str, FilmWork]) -> list[ESData]:
         res = []
         for fw in film_works.values():
             director, actors, writers = self._parse_persons(fw)
