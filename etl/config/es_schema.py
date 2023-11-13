@@ -1,5 +1,5 @@
-MAPPING = {
-      "settings": {
+SETTINGS = {
+    "settings": {
         "refresh_interval": "1s",
         "analysis": {
           "filter": {
@@ -38,7 +38,9 @@ MAPPING = {
             }
           }
         }
-      },
+      }
+}
+FILMWORK_MAPPING = {
       "mappings": {
         "dynamic": "strict",
         "properties": {
@@ -105,3 +107,23 @@ MAPPING = {
         }
       }
     }
+
+GENRE_MAPPING = {
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "ru_en",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
