@@ -1,12 +1,12 @@
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from storage import BaseStorage
 
 
 @dataclass
 class State:
-    update_date: datetime = str(datetime(day=1, month=1, year=1900, microsecond=1))
+    update_date: datetime = str(datetime(day=1, month=1, year=1900, microsecond=1, tzinfo=timezone.utc))
     offset_person: int = 0
     offset_genre: int = 0
     offset_film_works: int = 0
