@@ -7,8 +7,8 @@ from elasticsearch import Elasticsearch as ES
 from elasticsearch.helpers import bulk
 from http import HTTPStatus
 
-from data import ESData, ESGenre
-from config.es_schema import SETTINGS ,FILMWORK_MAPPING, GENRE_MAPPING
+from data import ESData, ESGenre, ESPerson
+from config.es_schema import SETTINGS ,FILMWORK_MAPPING, GENRE_MAPPING, PERSON_MAPPING
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,8 @@ class ESLoader:
     def __init__(self, es_server: str):
         self._es = ES(es_server)
         indexes = {'movies': FILMWORK_MAPPING,
-                   'genres': GENRE_MAPPING}
+                   'genres': GENRE_MAPPING,
+                   'persons': PERSON_MAPPING}
         for index in indexes:
             mapping = {'settings': SETTINGS,
                        'mappings': indexes[index]}
@@ -59,3 +60,18 @@ class ESLoader:
         bulk(self._es, actions)
         logger.info(f'Transfer completed, {len(genres)} updated...')
         return len(genres)
+
+    @backoff.on_exception(backoff.expo, ConnectionError)
+    def load_es_person(self, persons: list[ESPerson]):
+        logger.info(f'Processing {len(persons)} person:')
+        actions = []
+        for person in persons:
+            action = {
+                '_index': 'persons',
+                '_id': person.id,
+                '_source': asdict(person),
+            }
+            actions.append(action)
+        bulk(self._es, actions)
+        logger.info(f'Transfer completed, {len(persons)} updated...')
+        return len(persons)

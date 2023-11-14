@@ -13,7 +13,7 @@ from psycopg2.extras import DictCursor, DictRow
 from psycopg2.pool import ThreadedConnectionPool
 
 from config.config import LIMIT
-from data import FilmWork, Genre, Person, Role, ESGenre
+from data import FilmWork, Genre, Person, Role, ESGenre, ESPerson
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -215,4 +215,37 @@ class PostgresExtractor:
                 for row in rows:
                     res.append(ESGenre(id=row['g_id'], name=row['g_name']))
             logger.info('All genres have actual state')
+            return res
+    
+    @backoff.on_exception(backoff.expo, OperationalError)
+    def extract_persons(self, state: State) -> list[ESPerson]:
+        with self._get_db_cursor() as cursor:
+            person_ids = set()
+            persons = self._get_ids_changed_records(update_date=state.update_date,
+                                                   table=self._tables.person,
+                                                   limit=LIMIT,
+                                                   offset=state.offset_person
+                                                   )
+            for person in persons:
+                # Используются f-строки, так как требуется обернуть id в кавычки
+                person_ids.add(f"'{person[0]}'")
+
+            person_ids_str = ','.join(person_ids)
+            res = []
+            if person_ids_str:
+                query = '''SELECT
+                                g.id as g_id, 
+                                g.full_name as g_name 
+                            FROM {schema}.{g_table} g
+                            WHERE g.id IN ({recs_ids});'''
+
+                cursor.execute(query.format(schema=self._schema,
+                                            g_table=self._tables.person,
+                                            recs_ids=person_ids_str))
+
+                rows = cursor.fetchall()
+
+                for row in rows:
+                    res.append(ESPerson(id=row['g_id'], name=row['g_name']))
+            logger.info('All persons have actual state')
             return res
