@@ -1,3 +1,5 @@
+import logging
+
 from typing import Optional
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -7,10 +9,11 @@ from redis.asyncio import Redis
 from dependencies import get_redis, get_elasticsearch
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
-from models.film import Film, FilmList
-from app.core import logger
+from models.film import Film, FilmList, FilmSearchResult
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+
+logger = logging.getLogger(__name__)
 
 
 class FilmService:
@@ -35,10 +38,44 @@ class FilmService:
             return None
         return doc
 
+    async def search_films(
+        self,
+        query: str,
+        page_number: int,
+        page_size: int
+    ) -> list[FilmSearchResult]:
+
+        search_query = {
+            "query": {
+                "multi_match": {
+                    "query": query,
+                    "fields": ["title", "description"]
+                }
+            }
+        }
+
+        start_from = (page_number - 1) * page_size
+
+        try:
+            response = await self.elastic.search(
+                query=search_query,
+                from_=start_from,
+                size=page_size
+            )
+            films = []
+            for film_data in response:
+                film = FilmSearchResult(**film_data)
+                films.append(film)
+
+            return films
+        except Exception as e:
+            logger.error(e)
+            return []
+
     async def list_films(
-            self,
-            genre: Optional[str] = None,
-            sort: Optional[str] = None
+        self,
+        genre: Optional[str] = None,
+        sort: Optional[str] = None
     ) -> list[FilmList]:
         query = {
             "query": {
@@ -88,4 +125,3 @@ async def get_film_service(
     redis: Cache = get_cache(model=Film, redis=redis_client)
     elastic: Storage = get_storage(model=Film, index="movies", elastic_client=elastic_client)
     return FilmService(redis=redis, elastic=elastic)
-

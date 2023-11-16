@@ -2,7 +2,6 @@ import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 
-
 from .base import Storage
 from pydantic import BaseModel
 
@@ -31,10 +30,16 @@ class ElasticStorage(Storage):
     async def search(
             self,
             query: dict[str, any],
-            size: int = 10
+            size: int = 10,
+            from_: int = 0,
     ) -> list[dict[str, any]]:
         try:
-            response = await self.es.search(index=self.index, body=query, size=size)
+            response = await self.es.search(
+                index=self.index,
+                body=query,
+                size=size,
+                from_=from_
+            )
             return [hit["_source"] for hit in response["hits"]["hits"]]
         except Exception as e:
             logging.error(e)
