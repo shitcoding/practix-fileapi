@@ -1,16 +1,25 @@
 from http import HTTPStatus
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.models.film import FilmList
+
+from app.models.film import Film
 from services.film import FilmService, get_film_service
 
 router = APIRouter()
 
 
-class Film(BaseModel):
-    id: str
-    title: str
+@router.get("/all_movies", response_model=list[FilmList])
+async def list_films(
+    genre: Optional[str] = None,
+    sort: Optional[str] = None,
+    film_service: FilmService = Depends(get_film_service)
+):
+    films = await film_service.list_films(genre=genre, sort=sort)
+    return films
 
 
 @router.get('/{film_id}', response_model=Film)

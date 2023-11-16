@@ -23,7 +23,7 @@ class Storage(abc.ABC):
     def get(self, doc_id: str) -> BaseModel | None:
         pass
 
-    def search(self, query: dict) -> list[BaseModel]:
+    async def search(self, query: dict[str, any]) -> list[dict[str, any]]:
         pass
 
     def count(self, query: dict) -> int:

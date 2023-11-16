@@ -1,6 +1,3 @@
-import logging
-
-from functools import lru_cache
 from typing import Optional
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -10,7 +7,8 @@ from redis.asyncio import Redis
 from dependencies import get_redis, get_elasticsearch
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
-from models.film import Film
+from models.film import Film, FilmList
+from app.core import logger
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
@@ -36,6 +34,41 @@ class FilmService:
         except NotFoundError:
             return None
         return doc
+
+    async def list_films(
+            self,
+            genre: Optional[str] = None,
+            sort: Optional[str] = None
+    ) -> list[FilmList]:
+        query = {
+            "query": {
+                "bool": {
+                    "must": [],
+                    "filter": []
+                }
+            },
+            "sort": []
+        }
+
+        if genre:
+            query["query"]["bool"]["filter"].append({"term": {"genre": genre}})
+
+        if sort:
+            sort_order = "asc" if sort.lower() == "asc" else "desc"
+            query["sort"].append({"imdb_rating": {"order": sort_order}})
+
+        try:
+            response = await self.elastic.search(query=query, size=10)
+
+            films = []
+            for film_data in response:
+                film = FilmList(**film_data)
+                films.append(film)
+
+            return films
+        except Exception as e:
+            logger.error(e)
+            return []
 
     async def _film_from_cache(self, film_id: str) -> Optional[Film]:
         data = await self.redis.get(film_id)

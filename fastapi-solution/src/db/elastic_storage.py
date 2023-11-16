@@ -1,4 +1,4 @@
-from typing import Optional
+import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 
@@ -28,8 +28,17 @@ class ElasticStorage(Storage):
         except NotFoundError:
             return None
 
-    def search(self, query: dict) -> list[BaseModel]:
-        pass
+    async def search(
+            self,
+            query: dict[str, any],
+            size: int = 10
+    ) -> list[dict[str, any]]:
+        try:
+            response = await self.es.search(index=self.index, body=query, size=size)
+            return [hit["_source"] for hit in response["hits"]["hits"]]
+        except Exception as e:
+            logging.error(e)
+            return []
 
     def count(self, query: dict) -> int:
         pass
