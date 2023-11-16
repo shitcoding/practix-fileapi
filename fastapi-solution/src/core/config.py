@@ -17,3 +17,4 @@ ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 EXPIRE = 60 * 5
+DEFAULT_PAGE_SIZE = 50
