@@ -1,3 +1,5 @@
+import logging
+
 from functools import lru_cache
 from typing import Optional
 
@@ -5,7 +7,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from dependencies import get_redis
+from dependencies import get_redis, get_elasticsearch
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
 from models.film import Film
@@ -30,7 +32,7 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
-            doc = await self.elastic.get(index='movies', id=film_id)
+            doc = await self.elastic.get(doc_id=film_id)
         except NotFoundError:
             return None
         return Film(**doc['_source'])
@@ -46,10 +48,11 @@ class FilmService:
         await self.redis.set(film.id, film.json(), FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
-@lru_cache()
-def get_film_service(
-        redis_client: Redis = Depends(get_redis),
-        storage: Storage = Depends(get_storage(model=Film, index="movies")),
+async def get_film_service(
+    redis_client: Redis = Depends(get_redis),
+    elastic_client: AsyncElasticsearch = Depends(get_elasticsearch),
 ) -> FilmService:
-    cache: Cache = get_cache(model=Film, redis=redis_client)
-    return FilmService(cache, storage)
+    redis: Cache = get_cache(model=Film, redis=redis_client)
+    elastic: Storage = get_storage(model=Film, index="movies", elastic_client=elastic_client)
+    return FilmService(redis=redis, elastic=elastic)
+

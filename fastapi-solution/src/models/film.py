@@ -1,6 +1,6 @@
 from models.templ_model import IdMix
 from models.other_model import Genre,Person
-from pydantic.typing import Literal
+from typing import Literal
 
 
 class FilmBase(IdMix):
