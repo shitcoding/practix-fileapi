@@ -214,19 +214,19 @@ class PostgresExtractor:
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    res.append(ESGenre(id=row['g_id'], name=row['g_name']))
+                    res.append(ESGenre(uuid=row['g_id'], name=row['g_name']))
             logger.info('All genres have actual state')
             return res
-    
+
     @backoff.on_exception(backoff.expo, OperationalError)
     def extract_persons(self, state: State) -> list[ESPerson]:
         with self._get_db_cursor() as cursor:
             person_ids = set()
             persons = self._get_ids_changed_records(update_date=state.update_date,
-                                                   table=self._tables.person,
-                                                   limit=LIMIT,
-                                                   offset=state.offset_person
-                                                   )
+                                                    table=self._tables.person,
+                                                    limit=LIMIT,
+                                                    offset=state.offset_person
+                                                    )
             for person in persons:
                 # Используются f-строки, так как требуется обернуть id в кавычки
                 person_ids.add(f"'{person[0]}'")
@@ -247,6 +247,6 @@ class PostgresExtractor:
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    res.append(ESPerson(id=row['g_id'], name=row['g_name']))
+                    res.append(ESPerson(uuid=row['g_id'], full_name=row['g_name']))
             logger.info('All persons have actual state')
             return res
