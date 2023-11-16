@@ -1,7 +1,10 @@
+from typing import List
+
+from pydantic import BaseModel, TypeAdapter
 from redis.asyncio import Redis
 
-from pydantic import BaseModel
 from .base import Cache
+
 
 class RedisCache(Cache):
     def __init__(self, model, redis: Redis):
@@ -12,7 +15,20 @@ class RedisCache(Cache):
         data = await self.client.get(key)
         if not data:
             return None
-        return self.model.parse_raw(data)
+        return self.model.model_validate_json(data)
 
     async def set(self, key: str, value: BaseModel, expire: int):
-        await self.client.set(key, value.json(), expire)
+        await self.client.set(key, value.model_dump_json(), expire)
+
+    async def get_list(self, key: str) -> list[BaseModel]:
+        data = await self.client.get(key)
+        if not data:
+            return []
+        ta = TypeAdapter(List[self.model])
+        return ta.validate_json(data)
+
+    async def set_list(self, key: str, value: list[BaseModel], expire: int):
+        ta = TypeAdapter(List[self.model])
+        data = ta.dump_json(value)
+        await self.client.set(key, data, expire)
+
