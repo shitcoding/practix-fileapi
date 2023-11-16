@@ -54,9 +54,9 @@ class FilmService:
             query["query"]["bool"]["filter"].append({"term": {"genre": genre}})
 
         if sort:
-            sort_order = "asc" if sort.lower() == "asc" else "desc"
-            query["sort"].append({"imdb_rating": {"order": sort_order}})
-
+            sort_field = sort.lstrip('-')
+            sort_order = "asc" if sort.startswith('-') else "desc"
+            query["sort"].append({sort_field: {"order": sort_order}})
         try:
             response = await self.elastic.search(query=query, size=10)
 

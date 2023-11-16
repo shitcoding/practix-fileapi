@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from app.models.film import FilmList
@@ -12,11 +12,11 @@ from services.film import FilmService, get_film_service
 router = APIRouter()
 
 
-@router.get("/all_movies", response_model=list[FilmList])
+@router.get("/", response_model=list[FilmList])
 async def list_films(
-    genre: Optional[str] = None,
-    sort: Optional[str] = None,
-    film_service: FilmService = Depends(get_film_service)
+        sort: Optional[str] = Query(None),
+        genre: Optional[str] = None,
+        film_service: FilmService = Depends(get_film_service)
 ):
     films = await film_service.list_films(genre=genre, sort=sort)
     return films
@@ -28,3 +28,4 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
     return Film(id=film.id, title=film.title)
+
