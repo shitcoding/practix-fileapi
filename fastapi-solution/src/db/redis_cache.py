@@ -12,7 +12,8 @@ class RedisCache(Cache):
         data = await self.client.get(key)
         if not data:
             return None
-        return self.model.parse_raw(data)
+        return data
 
-    async def set(self, key: str, value: BaseModel, expire: int):
-        await self.client.set(key, value.json(), expire)
+    async def set(self, key: str, value: str, expire: int):
+        await self.client.set(key, value, expire)
+

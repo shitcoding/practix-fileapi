@@ -32,10 +32,10 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
-            doc = await self.elastic.get(doc_id=film_id)
+            doc: Film = await self.elastic.get(doc_id=film_id)
         except NotFoundError:
             return None
-        return Film(**doc['_source'])
+        return doc
 
     async def _film_from_cache(self, film_id: str) -> Optional[Film]:
         data = await self.redis.get(film_id)
