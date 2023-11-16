@@ -19,10 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class PersonService(Service):
-    def __init__(self, film_storage: Storage, *args, **kwargs):
+    def __init__(self, film_storage: Storage, film_cache: Cache, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_prefix = "PERSON"
         self.film_storage = film_storage
+        self.film_cache = film_cache
 
     async def get_by_id(self, person_id: str) -> Optional[PersonFilms]:
         person = await self._get_person_from_cache(person_id)
@@ -89,10 +90,10 @@ class PersonService(Service):
         await self.cache.set_list(f"{self.cache_prefix}:{json.dumps(query)}", persons, EXPIRE)
 
     async def _get_person_films_from_cache(self, person_id: str) -> Optional[List[FilmBase]]:
-        return await self.cache.get_list(f"{self.cache_prefix}:{person_id}:films")
+        return await self.film_cache.get_list(f"{self.cache_prefix}:{person_id}:films")
 
     async def _put_person_films_to_cache(self, person_id: str, films: list[FilmBase]):
-        await self.cache.set_list(f"{self.cache_prefix}:{person_id}:films", films, EXPIRE)
+        await self.film_cache.set_list(f"{self.cache_prefix}:{person_id}:films", films, EXPIRE)
 
     @staticmethod
     def _build_search_query(query: str, sort: str, page: int, size: int) -> Search:
@@ -151,4 +152,5 @@ def get_person_service(
     cache: Cache = get_cache(model=PersonFilms, redis=redis_client)
     storage: Storage = get_storage(model=Person, index="persons", elastic=elastic_client)
     film_storage: Storage = get_storage(model=Film, index='movies', elastic=elastic_client)
-    return PersonService(cache=cache, storage=storage, film_storage=film_storage)
+    film_cache: Cache = get_cache(model=FilmBase, redis=redis_client)
+    return PersonService(cache=cache, storage=storage, film_storage=film_storage, film_cache=film_cache)
