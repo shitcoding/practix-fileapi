@@ -1,19 +1,17 @@
-import backoff
 import logging
-
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List
 from uuid import UUID
 
+import backoff
+from config.config import LIMIT
+from data import ESGenre, ESPerson, FilmWork, Genre, Person, Role
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as pg_connection
 from psycopg2.extras import DictCursor, DictRow
 from psycopg2.pool import ThreadedConnectionPool
-
-from config.config import LIMIT
-from data import FilmWork, Genre, Person, Role, ESGenre, ESPerson
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -116,7 +114,10 @@ class PostgresExtractor:
                                      rating=fw['rating'])
                 res[fw["fw_id"]] = film_work
 
-            if not fw['person_id'] in res[fw["fw_id"]].persons and fw['person_id'] is not None:
+            if (not fw['person_id'] in res[fw["fw_id"]].persons
+                or fw['person_id'] in res[fw["fw_id"]].persons
+                and res[fw["fw_id"]].persons[fw['person_id']].role != Role(fw['person_role'])
+            ) and fw['person_id'] is not None:
                 person = Person(id=UUID(fw['person_id']), name=fw['person_full_name'], role=Role(fw['person_role']))
                 res[fw["fw_id"]].persons[fw['person_id']] = person
 
