@@ -8,7 +8,7 @@ def orjson_dumps(v, *, default):
 
 
 class IdMix(BaseModel):
-    id: UUID4
+    id: str
 
     class Config:
         orm_mode = True

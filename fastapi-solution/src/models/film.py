@@ -20,7 +20,7 @@ class Film(IdMix):
 
 
 class FilmList(BaseModel):
-    id: UUID4
+    id: str
     title: str
     imdb_rating: float = Field(None)
     genre: list[str]
@@ -30,6 +30,6 @@ class FilmList(BaseModel):
 
 
 class FilmSearchResult(BaseModel):
-    id: UUID4
+    id: str
     title: str
     imdb_rating: float
