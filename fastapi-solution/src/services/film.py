@@ -13,7 +13,6 @@ from db.db import get_cache, get_storage
 from db.base import Cache, Storage
 from models.film import Film, FilmList, FilmSearchResult
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +183,7 @@ class FilmService:
 
     async def _put_list_to_cache(self, cache_key: str, data: list):
         try:
-            await self.redis.set_list(cache_key, data, expire=FILM_CACHE_EXPIRE_IN_SECONDS)
+            await self.redis.set_list(cache_key, data, expire=EXPIRE)
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 

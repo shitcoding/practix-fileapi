@@ -19,8 +19,7 @@ class Film(IdMix):
         return v if isinstance(v, list) else None
 
 
-class FilmList(BaseModel):
-    id: str
+class FilmList(IdMix):
     title: str
     imdb_rating: float = Field(None)
     genre: list[str]
@@ -29,7 +28,6 @@ class FilmList(BaseModel):
         allow_population_by_field_name = True
 
 
-class FilmSearchResult(BaseModel):
-    id: str
+class FilmSearchResult(IdMix):
     title: str
     imdb_rating: float
