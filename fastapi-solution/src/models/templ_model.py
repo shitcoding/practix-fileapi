@@ -1,6 +1,5 @@
 import orjson
-
-from pydantic import BaseModel, Field, UUID4
+from pydantic import BaseModel
 
 
 def orjson_dumps(v, *, default):
@@ -8,9 +7,8 @@ def orjson_dumps(v, *, default):
 
 
 class IdMix(BaseModel):
-    id: str
+    uuid: str
 
     class Config:
-        orm_mode = True
         json_loads = orjson.loads
         json_dumps = orjson_dumps

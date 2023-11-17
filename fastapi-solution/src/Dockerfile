@@ -13,4 +13,3 @@ RUN  apt update && apt install gcc && pip install --upgrade pip \
 #COPY . .
 
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]
