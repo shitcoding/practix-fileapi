@@ -38,6 +38,35 @@ class FilmService:
             return None
         return doc
 
+    async def get_similar_films(self, film_id: str) -> list[FilmSearchResult]:
+        film_response = await self.elastic.get(doc_id=film_id)
+        genres = film_response.dict().get("genre", [])
+
+        if not genres:
+            return []
+
+        query = {
+            "query": {
+                "terms": {
+                    "genre": genres
+                }
+            }
+        }
+
+        try:
+            response = await self.elastic.search(
+                query=query,
+            )
+            films = []
+            for film_data in response:
+                film = FilmSearchResult(**film_data)
+                films.append(film)
+
+            return films
+        except Exception as e:
+            logger.error(e)
+            return []
+
     async def search_films(
         self,
         query: str,
