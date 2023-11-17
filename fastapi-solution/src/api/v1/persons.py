@@ -17,7 +17,7 @@ async def person_name(uuid: str, person_service: PersonService = Depends(get_per
     return person
 
 
-@router.get('/', response_model=list[PersonFilms])
+@router.get('/search/', response_model=list[PersonFilms])
 async def persons_list(query: str = "", sort: str = "", page: int = 1, size: int = DEFAULT_PAGE_SIZE,
                        person_service: PersonService = Depends(get_person_service)) -> list[PersonFilms]:
     persons = await person_service.search(query=query, sort=sort, page=page, size=size)
