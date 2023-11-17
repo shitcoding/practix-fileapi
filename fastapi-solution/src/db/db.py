@@ -1,5 +1,5 @@
-from .base import Cache, Storage
 from .elastic_storage import ElasticStorage
+from .base import Cache, Storage
 from .redis_cache import RedisCache
 
 
