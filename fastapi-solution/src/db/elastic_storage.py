@@ -23,7 +23,6 @@ class ElasticStorage(Storage):
     async def get(self, doc_id: str) -> BaseModel | None:
         try:
             response = await self.es.get(index=self.index, id=doc_id)
-            print(response)
             return self.model(**response["_source"])
         except NotFoundError:
             return None
