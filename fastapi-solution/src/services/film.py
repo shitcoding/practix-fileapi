@@ -188,9 +188,6 @@ class FilmService:
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 
-    async def main(self):
-        self.redis.get("film_id")
-
 
 async def get_film_service(
     redis_client: Redis = Depends(get_redis),
