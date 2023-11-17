@@ -126,12 +126,12 @@ class FilmService:
         genre: Optional[str] = None,
         sort: Optional[str] = None
     ) -> list[FilmList]:
-        cache_key = f"{self.cache_prefix}:list_films:{genre if genre else '_'}:{sort}"
+
+        cache_key = f"{self.cache_prefix}:list_films:{genre if genre else '_'}:{sort if sort else '_' }"
 
         cached_films = await self._get_list_from_cache(cache_key)
         if cached_films:
             return [FilmList.parse_obj(json.loads(film_json)) for film_json in cached_films]
-
         query = {
             "query": {
                 "bool": {
@@ -143,7 +143,8 @@ class FilmService:
         }
 
         if genre:
-            query["query"]["bool"]["filter"].append({"term": {"genre": genre}})
+            genre = genre.capitalize()
+            query["query"]["bool"]["filter"].append({"match": {"genre": genre}})
 
         if sort:
             sort_field = sort.lstrip('-')
@@ -189,6 +190,7 @@ class FilmService:
 
     async def main(self):
         self.redis.get("film_id")
+
 
 async def get_film_service(
     redis_client: Redis = Depends(get_redis),
