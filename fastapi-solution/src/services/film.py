@@ -140,7 +140,7 @@ class FilmService:
 
         cached_films = await self._get_list_from_cache(cache_key)
         if cached_films:
-            return [FilmList.parse_obj(json.loads(film_json)) for film_json in cached_films]
+            return [FilmList.parse_obj(film_json) for film_json in cached_films]
 
         nested_query = {
             "query": {
@@ -168,6 +168,12 @@ class FilmService:
             sort_field = sort.lstrip('-')
             sort_order = "asc" if sort.startswith('-') else "desc"
             nested_query["sort"].append({sort_field: {"order": sort_order}})
+
+        if genre is None and sort is None:
+            nested_query["query"] = {
+                "match_all": {}
+            }
+
         try:
             response = await self.elastic.search(query=nested_query)
 
