@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timezone
 
 from config.config import DSN, ES_SERVER, LIMIT, SCHEMA
-from data import ESData, FilmWork, ESGenre, ESPerson
+from data import ESData, ESGenre, ESPerson, FilmWork
 from extraction import PostgresExtractor, TablesNames
 from loading import ESLoader
 from state import State, StateManager

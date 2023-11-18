@@ -1,19 +1,17 @@
-import backoff
 import logging
-
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List
 from uuid import UUID
 
+import backoff
+from config.config import LIMIT
+from data import ESGenre, ESPerson, FilmWork, Genre, Person, Role
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as pg_connection
 from psycopg2.extras import DictCursor, DictRow
 from psycopg2.pool import ThreadedConnectionPool
-
-from config.config import LIMIT
-from data import FilmWork, Genre, Person, Role, ESGenre, ESPerson
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -116,7 +114,10 @@ class PostgresExtractor:
                                      rating=fw['rating'])
                 res[fw["fw_id"]] = film_work
 
-            if not fw['person_id'] in res[fw["fw_id"]].persons and fw['person_id'] is not None:
+            if (not fw['person_id'] in res[fw["fw_id"]].persons
+                or fw['person_id'] in res[fw["fw_id"]].persons
+                and res[fw["fw_id"]].persons[fw['person_id']].role != Role(fw['person_role'])
+            ) and fw['person_id'] is not None:
                 person = Person(id=UUID(fw['person_id']), name=fw['person_full_name'], role=Role(fw['person_role']))
                 res[fw["fw_id"]].persons[fw['person_id']] = person
 
@@ -213,19 +214,19 @@ class PostgresExtractor:
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    res.append(ESGenre(id=row['g_id'], name=row['g_name']))
+                    res.append(ESGenre(uuid=row['g_id'], name=row['g_name']))
             logger.info('All genres have actual state')
             return res
-    
+
     @backoff.on_exception(backoff.expo, OperationalError)
     def extract_persons(self, state: State) -> list[ESPerson]:
         with self._get_db_cursor() as cursor:
             person_ids = set()
             persons = self._get_ids_changed_records(update_date=state.update_date,
-                                                   table=self._tables.person,
-                                                   limit=LIMIT,
-                                                   offset=state.offset_person
-                                                   )
+                                                    table=self._tables.person,
+                                                    limit=LIMIT,
+                                                    offset=state.offset_person
+                                                    )
             for person in persons:
                 # Используются f-строки, так как требуется обернуть id в кавычки
                 person_ids.add(f"'{person[0]}'")
@@ -246,6 +247,6 @@ class PostgresExtractor:
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    res.append(ESPerson(id=row['g_id'], name=row['g_name']))
+                    res.append(ESPerson(uuid=row['g_id'], full_name=row['g_name']))
             logger.info('All persons have actual state')
             return res

@@ -1,5 +1,4 @@
 SETTINGS = {
-    "settings": {
         "refresh_interval": "1s",
         "analysis": {
           "filter": {
@@ -38,20 +37,29 @@ SETTINGS = {
             }
           }
         }
-      }
 }
+
 FILMWORK_MAPPING = {
-      "mappings": {
         "dynamic": "strict",
         "properties": {
-          "id": {
+          "uuid": {
             "type": "keyword"
           },
           "imdb_rating": {
             "type": "float"
           },
           "genre": {
-            "type": "keyword"
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
           },
           "title": {
             "type": "text",
@@ -66,9 +74,18 @@ FILMWORK_MAPPING = {
             "type": "text",
             "analyzer": "ru_en"
           },
-          "director": {
-            "type": "text",
-            "analyzer": "ru_en"
+          "directors": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "full_name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
           },
           "actors_names": {
             "type": "text",
@@ -82,10 +99,10 @@ FILMWORK_MAPPING = {
             "type": "nested",
             "dynamic": "strict",
             "properties": {
-              "id": {
+              "uuid": {
                 "type": "keyword"
               },
-              "name": {
+              "full_name": {
                 "type": "text",
                 "analyzer": "ru_en"
               }
@@ -95,10 +112,10 @@ FILMWORK_MAPPING = {
             "type": "nested",
             "dynamic": "strict",
             "properties": {
-              "id": {
+              "uuid": {
                 "type": "keyword"
               },
-              "name": {
+              "full_name": {
                 "type": "text",
                 "analyzer": "ru_en"
               }
@@ -106,13 +123,12 @@ FILMWORK_MAPPING = {
           }
         }
       }
-    }
+
 
 GENRE_MAPPING = {
-  "mappings": {
     "dynamic": "strict",
     "properties": {
-      "id": {
+      "uuid": {
         "type": "keyword"
       },
       "name": {
@@ -126,16 +142,15 @@ GENRE_MAPPING = {
       }
     }
   }
-}
+
 
 PERSON_MAPPING = {
-  "mappings": {
     "dynamic": "strict",
     "properties": {
-      "id": {
+      "uuid": {
         "type": "keyword"
       },
-      "name": {
+      "full_name": {
         "type": "text",
         "analyzer": "ru_en",
         "fields": {
@@ -146,4 +161,3 @@ PERSON_MAPPING = {
       }
     }
   }
-}

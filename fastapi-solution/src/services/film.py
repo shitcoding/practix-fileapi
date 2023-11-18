@@ -1,5 +1,6 @@
 import logging
 import json
+import traceback
 
 from typing import Optional
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class FilmService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
+    def __init__(self, redis: Cache, elastic: Storage):
         self.redis = redis
         self.elastic = elastic
         self.cache_prefix = 'FILM'
@@ -51,22 +52,29 @@ class FilmService:
             ]
 
         film_response = await self.elastic.get(doc_id=film_id)
-        genres = film_response.dict().get("genre", [])
 
-        if not genres:
+        if not film_response.genre:
             return []
 
-        query = {
+        nested_query = {
             "query": {
-                "terms": {
-                    "genre": genres
+                "nested": {
+                    "path": "genre",
+                    "query": {
+                        "multi_match": {
+                            "query": ', '.join([genre.name for genre in film_response.genre]),
+                            "fields": ["genre.name"]
+                        }
+                    }
                 }
-            }
+            },
+            "size": 10,
+            "from": 1
         }
 
         try:
             response = await self.elastic.search(
-                query=query,
+                query=nested_query,
             )
             films = []
             for film_data in response:
@@ -103,7 +111,8 @@ class FilmService:
         }
 
         start_from = (page_number - 1) * page_size
-
+        search_query["size"] = page_size
+        search_query["from"] = page_number
         try:
             response = await self.elastic.search(
                 query=search_query,
@@ -117,6 +126,7 @@ class FilmService:
             await self._put_list_to_cache(cache_key, films)
             return films
         except Exception as e:
+            traceback.print_exc()
             logger.error(e)
             return []
 
@@ -131,26 +141,35 @@ class FilmService:
         cached_films = await self._get_list_from_cache(cache_key)
         if cached_films:
             return [FilmList.parse_obj(json.loads(film_json)) for film_json in cached_films]
-        query = {
+
+        nested_query = {
             "query": {
-                "bool": {
-                    "must": [],
-                    "filter": []
+                "nested": {
+                    "path": "genre",
+                    "query": {
+                        "multi_match": {
+                            "query": "",
+                            "fields": []
+                        }
+                    }
                 }
             },
-            "sort": []
+            "sort": [],
+            "size": 10,
+            "from": 1
         }
 
         if genre:
             genre = genre.capitalize()
-            query["query"]["bool"]["filter"].append({"match": {"genre": genre}})
+            nested_query["query"]["nested"]["query"]["multi_match"]["query"] = genre
+            nested_query["query"]["nested"]["query"]["multi_match"]["fields"].append("genre.name")
 
         if sort:
             sort_field = sort.lstrip('-')
             sort_order = "asc" if sort.startswith('-') else "desc"
-            query["sort"].append({sort_field: {"order": sort_order}})
+            nested_query["sort"].append({sort_field: {"order": sort_order}})
         try:
-            response = await self.elastic.search(query=query, size=10)
+            response = await self.elastic.search(query=nested_query)
 
             films = []
             for film_data in response:
@@ -159,6 +178,7 @@ class FilmService:
             await self._put_list_to_cache(cache_key, films)
             return films
         except Exception as e:
+            traceback.print_exc()
             logger.error(e)
             return []
 
@@ -171,7 +191,7 @@ class FilmService:
         return film
 
     async def _put_film_to_cache(self, film: Film):
-        await self.redis.set(film.id, film.json(), EXPIRE)
+        await self.redis.set(film.uuid, film, EXPIRE)
 
     async def _get_list_from_cache(self, cache_key: str) -> Optional[list]:
         try:

@@ -1,14 +1,14 @@
 import logging
 from dataclasses import asdict
+from http import HTTPStatus
 
 import backoff
+from config.es_schema import (FILMWORK_MAPPING, GENRE_MAPPING, PERSON_MAPPING,
+                              SETTINGS)
+from data import ESData, ESGenre, ESPerson
 from elastic_transport import ConnectionError
 from elasticsearch import Elasticsearch as ES
 from elasticsearch.helpers import bulk
-from http import HTTPStatus
-
-from data import ESData, ESGenre, ESPerson
-from config.es_schema import SETTINGS ,FILMWORK_MAPPING, GENRE_MAPPING, PERSON_MAPPING
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ESLoader:
         for movie in movies:
             action = {
                 '_index': 'movies',
-                '_id': movie.id,
+                '_id': movie.uuid,
                 '_source': asdict(movie),
             }
             actions.append(action)
@@ -53,7 +53,7 @@ class ESLoader:
         for genre in genres:
             action = {
                 '_index': 'genres',
-                '_id': genre.id,
+                '_id': genre.uuid,
                 '_source': asdict(genre),
             }
             actions.append(action)
@@ -68,7 +68,7 @@ class ESLoader:
         for person in persons:
             action = {
                 '_index': 'persons',
-                '_id': person.id,
+                '_id': person.uuid,
                 '_source': asdict(person),
             }
             actions.append(action)

@@ -45,24 +45,24 @@ class FilmWork(Data):
 
 @dataclass
 class ESPerson:
-    id: str
-    name: str
+    uuid: str
+    full_name: str
 
 
 @dataclass
 class ESGenre:
-    id: str
+    uuid: str
     name: str
 
 
 @dataclass
 class ESData:
-    id:             str
+    uuid:           str
     imdb_rating:    float
-    genre:          list[str]
+    genre:          list[ESGenre]
     title:          str
     description:    str
-    director:       str
+    directors:      list[ESPerson]
     actors_names:   list[str]
     writers_names:  list[str]
     actors:         List[ESPerson]
