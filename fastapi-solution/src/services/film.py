@@ -142,38 +142,37 @@ class FilmService:
         if cached_films:
             return [FilmList.parse_obj(film_json) for film_json in cached_films]
 
-        nested_query = {
-            "query": {
-                "nested": {
-                    "path": "genre",
-                    "query": {
-                        "multi_match": {
-                            "query": "",
-                            "fields": []
+        if genre:
+            nested_query = {
+                "query": {
+                    "nested": {
+                        "path": "genre",
+                        "query": {
+                            "multi_match": {
+                                "query": genre.capitalize(),
+                                "fields": ["genre.name"]
+                            }
                         }
                     }
-                }
-            },
-            "sort": [],
-            "size": 10,
-            "from": 1
-        }
-
-        if genre:
-            genre = genre.capitalize()
-            nested_query["query"]["nested"]["query"]["multi_match"]["query"] = genre
-            nested_query["query"]["nested"]["query"]["multi_match"]["fields"].append("genre.name")
+                },
+                "sort": [],
+                "size": 10,
+                "from": 0
+            }
+        else:
+            nested_query = {
+                "query": {
+                    "match_all": {}
+                },
+                "sort": [],
+                "size": 10,
+                "from": 0
+            }
 
         if sort:
             sort_field = sort.lstrip('-')
-            sort_order = "asc" if sort.startswith('-') else "desc"
+            sort_order = "desc" if not sort.startswith('-') else "asc"
             nested_query["sort"].append({sort_field: {"order": sort_order}})
-
-        if genre is None and sort is None:
-            nested_query["query"] = {
-                "match_all": {}
-            }
-
         try:
             response = await self.elastic.search(query=nested_query)
 
