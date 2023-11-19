@@ -208,7 +208,7 @@ class FilmService:
 
     async def _put_list_to_cache(self, cache_key: str, data: list):
         try:
-            await self.redis.set_list(cache_key, data, expire=EXPIRE)
+            await self.redis.set_list(cache_key, json.dumps(data), expire=EXPIRE)
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 

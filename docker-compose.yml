@@ -7,7 +7,11 @@ services:
       - "postgres"
       - "-c"
       - "search_path=public,content"
-
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     env_file: ./postgres/.env
     volumes:
         - ./postgres/init_pg:/docker-entrypoint-initdb.d
@@ -30,9 +34,15 @@ services:
     env_file:
       - ./fastapi-solution/api.env
     depends_on:
-      - db
-      - redis
-      - elasticsearch
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+    volumes:
+      - ./fastapi-solution/src/:/opt/app/
 
   django:
     build: ./django/ 
@@ -42,9 +52,12 @@ services:
       - static_volume:/code/static
       - ./sqlite_to_postgres:/in_data
     depends_on:
-      - db
-      - redis
-      - elasticsearch
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
   
   elasticsearch:
     restart: always
@@ -55,20 +68,22 @@ services:
       - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-  
+
   redis:
     restart: always
     image: redis:latest
     environment:
       REDIS_USER: admin
       REDIS_PASSWORD: admin
-      
+
   etl:
     build: ./etl
     env_file: ./etl/.env
     depends_on:
-      - db
-      - elasticsearch
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
 
 volumes:
   static_volume:
