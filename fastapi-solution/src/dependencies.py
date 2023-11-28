@@ -8,7 +8,7 @@ es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_SCHEME}://{config.ELASTIC_HOST}
 
 
 async def get_redis() -> Redis:
-    client = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, decode_responses=True)
+    client = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
     try:
         yield client
     finally:
