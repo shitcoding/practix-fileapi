@@ -95,10 +95,11 @@ class FilmService:
 
         cache_key = f"{self.cache_prefix}:search_films:{query}:{page_number}:{page_size}"
         cached_films = await self._get_list_from_cache(cache_key)
+
         if cached_films:
             return [
-                FilmSearchResult.parse_obj(json.loads(film_json))
-                for film_json in cached_films
+                FilmSearchResult.parse_obj(film_json)
+                for film_json in json.loads(cached_films)
             ]
 
         search_query = {
@@ -119,11 +120,11 @@ class FilmService:
                 from_=start_from,
                 size=page_size
             )
+            await self._put_list_to_cache(cache_key, response)
             films = []
             for film_data in response:
                 film = FilmSearchResult(**film_data)
                 films.append(film)
-            await self._put_list_to_cache(cache_key, films)
             return films
         except Exception as e:
             traceback.print_exc()
@@ -201,14 +202,14 @@ class FilmService:
     async def _get_list_from_cache(self, cache_key: str) -> Optional[list]:
         try:
             data = await self.redis.get(cache_key)
-            return json.loads(data) if data else None
+            return data if data else None
         except Exception as e:
             logging.error(f"Error retrieving from cache: {e}")
             return None
 
     async def _put_list_to_cache(self, cache_key: str, data: list):
         try:
-            await self.redis.set_list(cache_key, json.dumps(data), expire=EXPIRE)
+            await self.redis.set_list(cache_key, data, expire=EXPIRE)
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 
