@@ -13,8 +13,6 @@ services:
       timeout: 10s
       retries: 5
     env_file: ./postgres/.env
-    ports:
-        - 5432:5432
     volumes:
         - ./postgres/init_pg:/docker-entrypoint-initdb.d
         - postgres_data:/var/lib/postgresql/data
@@ -33,9 +31,8 @@ services:
   fastapi:
     restart: always
     build: ./fastapi-solution/src
-    image: fastapi-image
     env_file:
-      - fastapi-solution/src/api.env
+      - ./fastapi-solution/api.env
     depends_on:
       redis:
         condition: service_started
@@ -46,8 +43,6 @@ services:
 
     volumes:
       - ./fastapi-solution/src/:/opt/app/
-    ports:
-      - "8001:8000"
 
   django:
     build: ./django/
@@ -56,8 +51,6 @@ services:
     volumes:
       - static_volume:/code/static
       - ./sqlite_to_postgres:/in_data
-    ports:
-      - 8000:8000
     depends_on:
       db:
         condition: service_healthy
@@ -75,8 +68,6 @@ services:
       - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
 
   redis:
     restart: always
@@ -84,8 +75,6 @@ services:
     environment:
       REDIS_USER: admin
       REDIS_PASSWORD: admin
-    ports:
-      - 6379:6379
 
   etl:
     build: ./etl
