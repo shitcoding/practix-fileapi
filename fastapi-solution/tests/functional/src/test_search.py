@@ -4,6 +4,8 @@ import uuid
 import pytest
 
 from tests.functional.settings import get_settings
+from tests.functional.testdata.es_mapping import MOVIE_MAPPING
+
 
 test_settings = get_settings()
 
@@ -40,7 +42,7 @@ async def test_search(es_write_data, make_get_request):
         bulk_query.append(data)
 
     # 2. Загружаем данные в ES
-    await es_write_data(bulk_query)
+    await es_write_data(bulk_query, MOVIE_MAPPING)
 
     # 3. Запрашиваем данные из ES по API
     query_data = {'query': 'The Star'}
