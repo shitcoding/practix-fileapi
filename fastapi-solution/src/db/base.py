@@ -1,11 +1,11 @@
-import abc
+from abc import ABC, abstractmethod
 from pydantic import BaseModel as Base
 from typing_extensions import TypeVar
 
 BaseModel = TypeVar("BaseModel", bound=Base)
 
 
-class Cache(abc.ABC):
+class Cache(ABC):
     def __call__(self):
         return self
 
@@ -22,15 +22,15 @@ class Cache(abc.ABC):
         pass
 
 
-class Storage(abc.ABC):
-    def __init__(self, model: type[BaseModel]):
-        self.model = model
-
+class Storage(ABC):
+    @abstractmethod
     def __call__(self):
-        return self
-
-    async def get(self, doc_id: str) -> BaseModel | None:
         pass
 
-    async def search(self, query: dict[str, any], **kwargs) -> list[BaseModel]:
+    @abstractmethod
+    async def get(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def search(self, *args, **kwargs):
         pass

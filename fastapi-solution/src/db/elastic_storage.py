@@ -1,9 +1,9 @@
 import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
-
 from .base import Storage
 from pydantic import BaseModel
+
 
 class ElasticStorage(Storage):
     def __init__(
@@ -12,7 +12,6 @@ class ElasticStorage(Storage):
             index: str,
             elastic_client: AsyncElasticsearch
     ):
-        super().__init__(model)
         self.model = model
         self.index = index
         self.es = elastic_client
@@ -43,6 +42,3 @@ class ElasticStorage(Storage):
         except Exception as e:
             logging.error(e)
             return []
-
-    def count(self, query: dict) -> int:
-        pass

@@ -149,11 +149,10 @@ class PersonService(Service):
 @lru_cache()
 def get_person_service(
         redis_client: Redis = Depends(get_redis),
-        elastic_client: AsyncElasticsearch = Depends(get_elasticsearch)
+        storage: Storage = Depends(get_storage(model=Person, index="persons")),
+        film_storage: Storage = Depends(get_storage(model=Film, index='movies'))
 
 ) -> PersonService:
     cache: Cache = get_cache(model=PersonFilms, redis=redis_client)
-    storage: Storage = get_storage(model=Person, index="persons", elastic_client=elastic_client)
-    film_storage: Storage = get_storage(model=Film, index='movies', elastic_client=elastic_client)
     film_cache: Cache = get_cache(model=FilmSearchResult, redis=redis_client)
     return PersonService(cache=cache, storage=storage, film_storage=film_storage, film_cache=film_cache)

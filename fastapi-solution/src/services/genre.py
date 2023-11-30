@@ -81,9 +81,8 @@ class GenreService(Service):
 @lru_cache()
 def get_genre_service(
         redis_client: Redis = Depends(get_redis),
-        elastic_client: AsyncElasticsearch = Depends(get_elasticsearch)
+        storage: Storage = Depends(get_storage(model=Genre, index="genres"))
 
 ) -> GenreService:
     cache: Cache = get_cache(model=Genre, redis=redis_client)
-    storage: Storage = get_storage(model=Genre, index="genres", elastic_client=elastic_client)
     return GenreService(cache, storage)
