@@ -45,7 +45,7 @@ services:
       - ./fastapi-solution/src/:/opt/app/
 
   django:
-    build: ./django/ 
+    build: ./django/
     restart: always
     env_file: ./django/.env
     volumes:
@@ -58,7 +58,7 @@ services:
         condition: service_started
       elasticsearch:
         condition: service_started
-  
+
   elasticsearch:
     restart: always
     image: elasticsearch:8.10.2
