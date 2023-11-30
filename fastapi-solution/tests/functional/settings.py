@@ -15,7 +15,6 @@ class FastAPISettings(BaseSettings):
 class ElasticsearchSettings(BaseSettings):
     es_host: str = Field(..., env='ES_HOST')
     es_port: int = Field(..., env='ES_PORT')
-    es_index: str = Field(..., env='ES_INDEX')
 
     class Config:
         ignored_types = (functools.cached_property,)

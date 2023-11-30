@@ -16,6 +16,9 @@ services:
     entrypoint: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     ports:
       - 8000:8000
+    depends_on:
+      - elasticsearch
+      - redis
 
   elasticsearch:
     container_name: elasticsearch
@@ -47,7 +50,6 @@ services:
       - APP_PORT=8000
       - ES_HOST=elasticsearch
       - ES_PORT=9200
-      - ES_INDEX=movies
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
