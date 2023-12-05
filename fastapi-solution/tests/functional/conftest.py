@@ -11,11 +11,13 @@ from functional.settings import get_settings
 from functional.logger import logger
 from functional.testdata.es_mapping import SETTINGS
 from functional.testdata.movies_data import TEST_MOVIE_DATA
-from functional.testdata.genre_data import TEST_GENRE_DATA
 
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
 
+pytest_plugins = [
+    'functional.fixtures.genre_fixtures',
+]
 
 @pytest_asyncio.fixture(scope='session')
 def event_loop():
@@ -75,11 +77,7 @@ def movie_data_generator():
     return generate_data
 
 
-@pytest_asyncio.fixture(scope='session')
-def genre_data_generator():
-    def generate_data():
-        return TEST_GENRE_DATA
-    return generate_data
+
 
 
 @pytest_asyncio.fixture(name='es_write_data', scope='session')
@@ -103,7 +101,7 @@ def es_write_data(es_client: AsyncElasticsearch):
 @pytest_asyncio.fixture(name='make_get_request')
 async def make_get_request(asyncio_client: aiohttp.ClientSession):
     @backoff.on_exception(backoff.expo, Exception)
-    async def inner(path, query_data):
+    async def inner(path: str, query_data: dict = {}) -> dict:
         url = f'http://{settings.fastapi.app_host}:{settings.fastapi.app_port}/api/v1/{path}'
 
         async with asyncio_client.get(url, params=query_data) as response:
