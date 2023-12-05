@@ -3,13 +3,15 @@ from typing import Callable
 
 import aiohttp
 import pytest_asyncio
+import backoff
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from functional.settings import get_settings
 
 from functional.logger import logger
 from functional.testdata.es_mapping import SETTINGS
-from functional.testdata.movies_data import TEST_MOVIE_DATA, TEST_GENRE_DATA
+from functional.testdata.movies_data import TEST_MOVIE_DATA
+from functional.testdata.genre_data import TEST_GENRE_DATA
 
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
@@ -24,7 +26,6 @@ def event_loop():
 
 @pytest_asyncio.fixture(name='es_client', scope='session')
 async def es_client():
-    logger.info('Connecting to elasticsearch...')
     es_client = AsyncElasticsearch(
         hosts=f'http://{settings.elastic.es_host}:{settings.elastic.es_port}',
         verify_certs=False,
@@ -35,10 +36,8 @@ async def es_client():
 
 @pytest_asyncio.fixture(name='asyncio_client', scope='session')
 async def asyncio_client():
-    logger.info('Connecting asyncio client...')
     session = aiohttp.ClientSession()
     yield session
-    logger.info('Closing asyncio client...')
     await session.close()
 
 
@@ -54,7 +53,6 @@ async def es_data_loader(
     ):
         mapping = {'settings': SETTINGS, 'mappings': mapping}
 
-        logger.info(f'Filling index {index_name}...')
         es_data = data_generator()
         bulk_query = []
         for row in es_data:
@@ -73,7 +71,6 @@ async def es_data_loader(
 @pytest_asyncio.fixture(scope='session')
 def movie_data_generator():
     def generate_data():
-        logger.info('Generating movie data...')
         return [TEST_MOVIE_DATA for _ in range(60)]
     return generate_data
 
@@ -81,7 +78,6 @@ def movie_data_generator():
 @pytest_asyncio.fixture(scope='session')
 def genre_data_generator():
     def generate_data():
-        logger.info('Generating genre data...')
         return TEST_GENRE_DATA
     return generate_data
 
@@ -90,9 +86,7 @@ def genre_data_generator():
 def es_write_data(es_client: AsyncElasticsearch):
     async def inner(data: list[dict], index_mapping: dict, elastic_index: str):
         if await es_client.indices.exists(index=elastic_index):
-            logger.info(f'Index {elastic_index} already exists. Deleting index {elastic_index}...')
             await es_client.indices.delete(index=elastic_index)
-        logger.info(f'Creating index {elastic_index}...')
         await es_client.indices.create(
             index=elastic_index,
             **index_mapping,
@@ -108,14 +102,16 @@ def es_write_data(es_client: AsyncElasticsearch):
 
 @pytest_asyncio.fixture(name='make_get_request')
 async def make_get_request(asyncio_client: aiohttp.ClientSession):
+    @backoff.on_exception(backoff.expo, Exception)
     async def inner(path, query_data):
-        logger.info(f'GET {path}?{query_data}')
         url = f'http://{settings.fastapi.app_host}:{settings.fastapi.app_port}/api/v1/{path}'
 
         async with asyncio_client.get(url, params=query_data) as response:
-            logger.info(f'response: {await response.json()}')
+            response_json = await response.json()
+            if len(response_json) == 0:
+                raise Exception(f'Empty response: {response_json}')
             return {
-                'body': await response.json(),
+                'body': response_json,
                 'headers': response.headers,
                 'status': response.status
             }

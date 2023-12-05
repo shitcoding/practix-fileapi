@@ -15,7 +15,7 @@ async def test_genre(es_data_loader, make_get_request, genre_data_generator):
         data_generator=genre_data_generator,
         mapping=GENRE_MAPPING,
     )
-    query_data = {'query': 'Comedy'}
+    query_data = {'query': 'Romance'}
     response = await make_get_request(
         path='genres/',
         query_data=query_data,
@@ -25,4 +25,4 @@ async def test_genre(es_data_loader, make_get_request, genre_data_generator):
     body = response.get('body')
     logger.info(f'answer: {body}')
     assert status == 200
-    assert len(body) == 50
+    assert body[0]['name'] == query_data['query']
