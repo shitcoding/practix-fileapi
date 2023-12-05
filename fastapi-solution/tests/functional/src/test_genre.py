@@ -1,28 +1,47 @@
+import logging
+
 import pytest
 
-from functional.logger import logger
-from functional.settings import get_settings
-from functional.testdata.es_mapping import GENRE_MAPPING
-
-
-test_settings = get_settings()
+from functional.testdata.genre_data import TEST_GENRE_DATA
 
 
 @pytest.mark.asyncio
-async def test_genre(es_data_loader, make_get_request, genre_data_generator):
-    await es_data_loader(
-        index_name=test_settings.elastic.es_genres_index,
-        data_generator=genre_data_generator,
-        mapping=GENRE_MAPPING,
-    )
-    query_data = {'query': 'Romance'}
+async def test_genre_by_id(make_get_request):
+
+    genre_uuid = TEST_GENRE_DATA[3]['uuid']
     response = await make_get_request(
-        path='genres/',
-        query_data=query_data,
+        path=f'genres/{genre_uuid}/'
     )
 
     status = response.get('status')
     body = response.get('body')
-    logger.info(f'answer: {body}')
     assert status == 200
-    assert body[0]['name'] == query_data['query']
+    assert body['uuid'] == genre_uuid
+    assert body['name'] == TEST_GENRE_DATA[3].get('name')
+
+
+@pytest.mark.asyncio
+async def test_genre_by_name(make_get_request):
+
+    genre = TEST_GENRE_DATA[3]['name']
+    response = await make_get_request(
+        path=f'genres/',
+        query_data={'name': genre}
+    )
+
+    status = response.get('status')
+    body = response.get('body')
+    assert status == 200
+    assert body[0]['name'] == TEST_GENRE_DATA[3].get('name')
+
+
+@pytest.mark.asyncio
+async def test_all_genre(make_get_request):
+    response = await make_get_request(
+        path='genres/'
+    )
+
+    status = response.get('status')
+    body = response.get('body')
+    assert status == 200
+    assert len(body) == len(TEST_GENRE_DATA)
