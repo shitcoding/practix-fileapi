@@ -24,6 +24,10 @@ class Cache(ABC):
 
 class Storage(ABC):
     @abstractmethod
+    def init(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
     def __call__(self):
         pass
 

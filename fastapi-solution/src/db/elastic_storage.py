@@ -8,13 +8,20 @@ from pydantic import BaseModel
 class ElasticStorage(Storage):
     def __init__(
             self,
-            model: type[BaseModel],
-            index: str,
             elastic_client: AsyncElasticsearch
     ):
+        self.model = None
+        self.index = None
+        self.es = elastic_client
+
+    def init(
+            self,
+            model: type[BaseModel],
+            index: str
+    ) -> "ElasticStorage":
         self.model = model
         self.index = index
-        self.es = elastic_client
+        return self
 
     def __call__(self):
         return self

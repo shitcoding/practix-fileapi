@@ -8,7 +8,7 @@ services:
       - "-c"
       - "search_path=public,content"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U app" ]
+      test: [ "CMD-SHELL", "pg_isready -U app -d movies_database" ]
       interval: 30s
       timeout: 10s
       retries: 5
