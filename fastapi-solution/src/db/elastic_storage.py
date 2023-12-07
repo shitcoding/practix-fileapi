@@ -26,6 +26,9 @@ class ElasticStorage(Storage):
     def __call__(self):
         return self
 
+    def __deepcopy__(self, memodict=None):
+        return type(self)(self.es)
+
     async def get(self, doc_id: str) -> BaseModel | None:
         try:
             response = await self.es.get(index=self.index, id=doc_id)

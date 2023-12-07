@@ -2,6 +2,7 @@ import json
 import logging
 from functools import lru_cache
 from typing import List, Optional
+from copy import deepcopy
 
 from core.config import EXPIRE
 from db.base import Cache, Storage
@@ -149,13 +150,15 @@ class PersonService(Service):
 @lru_cache()
 def get_person_service(
         redis_client: Redis = Depends(get_redis),
-        storage: Storage = Depends(get_storage),
-        film_storage: Storage = Depends(get_storage)
-
+        storage: Storage = Depends(get_storage)
 ) -> PersonService:
     cache: Cache = get_cache(model=PersonFilms, redis=redis_client)
     film_cache: Cache = get_cache(model=FilmSearchResult, redis=redis_client)
+
+    person_storage = storage
+    film_storage = deepcopy(storage)
+
     return PersonService(cache=cache,
-                         storage=storage.init(model=Person, index="persons"),
+                         storage=person_storage.init(model=Person, index="persons"),
                          film_storage=film_storage.init(model=Film, index="movies"),
                          film_cache=film_cache)
