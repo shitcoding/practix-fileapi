@@ -156,6 +156,6 @@ def get_person_service(
     cache: Cache = get_cache(model=PersonFilms, redis=redis_client)
     film_cache: Cache = get_cache(model=FilmSearchResult, redis=redis_client)
     return PersonService(cache=cache,
-                         storage=storage.init(model=PersonFilms, index="persons"),
+                         storage=storage.init(model=Person, index="persons"),
                          film_storage=film_storage.init(model=Film, index="movies"),
                          film_cache=film_cache)
