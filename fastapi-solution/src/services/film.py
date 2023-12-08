@@ -215,8 +215,7 @@ class FilmService:
 
 async def get_film_service(
     redis_client: Redis = Depends(get_redis),
-    elastic_client: AsyncElasticsearch = Depends(get_elasticsearch),
+    elastic: Storage = Depends(get_storage),
 ) -> FilmService:
     redis: Cache = get_cache(model=Film, redis=redis_client)
-    elastic: Storage = get_storage(model=Film, index="movies", elastic_client=elastic_client)
-    return FilmService(redis=redis, elastic=elastic)
+    return FilmService(redis=redis, elastic=elastic.init(model=Film, index="movies"))

@@ -1,24 +1,33 @@
 import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
-
 from .base import Storage
 from pydantic import BaseModel
+
 
 class ElasticStorage(Storage):
     def __init__(
             self,
-            model: type[BaseModel],
-            index: str,
             elastic_client: AsyncElasticsearch
     ):
-        super().__init__(model)
+        self.model = None
+        self.index = None
+        self.es = elastic_client
+
+    def init(
+            self,
+            model: type[BaseModel],
+            index: str
+    ) -> "ElasticStorage":
         self.model = model
         self.index = index
-        self.es = elastic_client
+        return self
 
     def __call__(self):
         return self
+
+    def __deepcopy__(self, memodict=None):
+        return type(self)(self.es)
 
     async def get(self, doc_id: str) -> BaseModel | None:
         try:
@@ -43,6 +52,3 @@ class ElasticStorage(Storage):
         except Exception as e:
             logging.error(e)
             return []
-
-    def count(self, query: dict) -> int:
-        pass
