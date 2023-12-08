@@ -1,0 +1,101 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    restart: "no"
+    command:
+      - "postgres"
+      - "-c"
+      - "search_path=public,content"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app -d movies_database" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    env_file: ./postgres/.env
+    volumes:
+        - ./postgres/init_pg:/docker-entrypoint-initdb.d
+        - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  nginx:
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - static_volume:/code/static:ro
+    depends_on:
+      - django
+
+  fastapi:
+    restart: always
+    build: ./fastapi-solution/src
+    env_file:
+      - ./fastapi-solution/api.env
+    depends_on:
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+    volumes:
+      - ./fastapi-solution/src/:/opt/app/
+
+  django:
+    build: ./django/
+    restart: always
+    env_file: ./django/.env
+    volumes:
+      - static_volume:/code/static
+      - ./sqlite_to_postgres:/in_data
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+    ports:
+      - 8000:8000
+
+  elasticsearch:
+    restart: always
+    image: elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  redis:
+    restart: always
+    image: redis:latest
+    environment:
+      REDIS_USER: admin
+      REDIS_PASSWORD: admin
+    ports:
+      - 6379:6379
+
+  etl:
+    build: ./etl
+    env_file: ./etl/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+
+volumes:
+  static_volume:
+  postgres_data:
+  esdata:
