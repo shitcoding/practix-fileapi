@@ -4,22 +4,24 @@ import traceback
 
 from typing import Optional
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch import NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
 from core.config import EXPIRE
-from dependencies import get_redis, get_elasticsearch
+from dependencies import get_redis
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
 from models.film import Film, FilmList, FilmSearchResult
+from services.base import Service
 
 
 logger = logging.getLogger(__name__)
 
 
-class FilmService:
+class FilmService(Service):
     def __init__(self, redis: Cache, elastic: Storage):
+        super().__init__(redis,elastic)
         self.redis = redis
         self.elastic = elastic
         self.cache_prefix = 'FILM'

@@ -14,12 +14,12 @@ from fastapi import Depends
 from models.film import Film, FilmSearchResult
 from models.person import FilmPerson, Person, PersonFilms, Role
 from redis.asyncio import Redis
-from services.base import Service
+from services.base import ExtService
 
 logger = logging.getLogger(__name__)
 
 
-class PersonService(Service):
+class PersonService(ExtService):
     def __init__(self, film_storage: Storage, film_cache: Cache, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_prefix = "PERSON"
