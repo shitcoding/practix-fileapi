@@ -28,7 +28,7 @@ class GenreService(Service):
         if not genre:
             genre = await self._get_genre_from_storage(genre_id)
             if not genre:
-                return None
+                raise Exception(f"Genre {genre_id} not found")
             await self._put_genre_to_cache(genre)
 
         return genre
@@ -42,7 +42,7 @@ class GenreService(Service):
             genres = await self._get_genres_from_storage(search_query)
 
             if not genres:
-                return []
+                raise Exception(f"Genres with query {query} not found")
             await self._put_genres_to_cache(search_query.to_dict(), genres)
 
         return genres
@@ -54,7 +54,12 @@ class GenreService(Service):
         return await self.storage.search(query=query.to_dict())
 
     async def _get_genre_from_cache(self, genre_id: str) -> Optional[Genre]:
-        return await self.cache.get(f"{self.cache_prefix}:{genre_id}")
+        data = await self.cache.get(f"{self.cache_prefix}:{genre_id}")
+        if not data:
+            return None
+        deserialized_data = json.loads(data)
+        genre = Genre.parse_obj(deserialized_data)
+        return genre
 
     async def _get_genres_from_cache(self, query: dict) -> List[Genre]:
         return await self.cache.get_list(f"{self.cache_prefix}:{json.dumps(query)}")
