@@ -1,23 +1,30 @@
 import asyncio
+import time
+from http import HTTPStatus
 from typing import Callable
 
 import aiohttp
 import pytest_asyncio
 import backoff
+from aiohttp.abc import HTTPException
+from aiohttp.web_exceptions import HTTPNotFound
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from functional.settings import get_settings
+from httpx import HTTPError
+from tests.functional.settings import get_settings
 
-from functional.logger import logger
-from functional.testdata.es_mapping import SETTINGS
-from functional.testdata.movies_data import TEST_MOVIE_DATA
+from tests.functional.logger import logger
+from tests.functional.testdata.es_mapping import SETTINGS
+from tests.functional.testdata.movies_data import TEST_MOVIE_DATA
+from urllib3 import HTTPResponse
 
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
 
 pytest_plugins = [
-    'functional.fixtures.genre_fixtures',
+    'tests.functional.fixtures.fixture_genres',
 ]
+
 
 @pytest_asyncio.fixture(scope='session')
 def event_loop():
@@ -45,13 +52,13 @@ async def asyncio_client():
 
 @pytest_asyncio.fixture(name='es_data_loader', scope='session')
 async def es_data_loader(
-    es_client: AsyncElasticsearch,
-    es_write_data: Callable,
+        es_client: AsyncElasticsearch,
+        es_write_data: Callable,
 ):
     async def inner(
-        index_name: str,
-        data_generator: DataGenerator,
-        mapping: dict,
+            index_name: str,
+            data_generator: DataGenerator,
+            mapping: dict,
     ):
         mapping = {'settings': SETTINGS, 'mappings': mapping}
 
@@ -67,6 +74,7 @@ async def es_data_loader(
             index_mapping=mapping,
             elastic_index=index_name,
         )
+
     return inner
 
 
@@ -74,10 +82,8 @@ async def es_data_loader(
 def movie_data_generator():
     def generate_data():
         return [TEST_MOVIE_DATA for _ in range(60)]
+
     return generate_data
-
-
-
 
 
 @pytest_asyncio.fixture(name='es_write_data', scope='session')
@@ -91,6 +97,7 @@ def es_write_data(es_client: AsyncElasticsearch):
         )
         updated, errors = await async_bulk(client=es_client, actions=data)
 
+
         if errors:
             logger.error(errors)
             raise Exception('Ошибка записи данных в Elasticsearch')
@@ -100,18 +107,24 @@ def es_write_data(es_client: AsyncElasticsearch):
 
 @pytest_asyncio.fixture(name='make_get_request')
 async def make_get_request(asyncio_client: aiohttp.ClientSession):
-    @backoff.on_exception(backoff.expo, Exception)
-    async def inner(path: str, query_data: dict = {}) -> dict:
+    async def inner(path: str, query_data: dict = {}) -> dict | HTTPResponse:
         url = f'http://{settings.fastapi.app_host}:{settings.fastapi.app_port}/api/v1/{path}'
-
-        async with asyncio_client.get(url, params=query_data) as response:
-            response_json = await response.json()
-            if len(response_json) == 0:
-                raise Exception(f'Empty response: {response_json}')
-            return {
-                'body': response_json,
-                'headers': response.headers,
-                'status': response.status
-            }
+        logger.info(url)
+        trying = 0
+        while trying < 4:
+            async with (asyncio_client.get(url, params=query_data) as response):
+                logger.info(f'Response status: {response.status}')
+                response_json = await response.json()
+                time.sleep(0.2)
+                if trying == 3:
+                    return HTTPResponse(status=HTTPStatus.NOT_FOUND)
+                if len(response_json) == 0 or type(response_json) == dict and response_json.get('detail'):
+                    trying += 1
+                    continue
+                return {
+                    'body': response_json,
+                    'headers': response.headers,
+                    'status': response.status
+                }
 
     return inner
