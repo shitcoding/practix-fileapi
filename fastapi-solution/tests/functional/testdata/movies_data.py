@@ -1,6 +1,6 @@
 import datetime
-import uuid
 import random
+import uuid
 
 TEST_MOVIE_DATA = {
     'uuid': str(uuid.uuid4()),

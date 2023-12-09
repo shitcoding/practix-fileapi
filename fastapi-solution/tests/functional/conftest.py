@@ -5,15 +5,10 @@ from typing import Callable
 
 import aiohttp
 import pytest_asyncio
-import backoff
-from aiohttp.abc import HTTPException
-from aiohttp.web_exceptions import HTTPNotFound
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from httpx import HTTPError
-from tests.functional.settings import get_settings
-
 from tests.functional.logger import logger
+from tests.functional.settings import get_settings
 from tests.functional.testdata.es_mapping import SETTINGS
 from tests.functional.testdata.movies_data import TEST_MOVIE_DATA
 from urllib3 import HTTPResponse

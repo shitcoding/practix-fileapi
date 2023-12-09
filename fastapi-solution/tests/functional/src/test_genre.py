@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-
 from tests.functional.testdata.genre_data import TEST_GENRE_DATA
 
 
