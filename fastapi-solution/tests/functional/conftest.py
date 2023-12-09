@@ -13,6 +13,7 @@ from functional.testdata.movies_data import TEST_MOVIE_DATA
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
 
+pytest_plugins = ['tests.functional.fixtures.fixture_persons',]
 
 @pytest_asyncio.fixture(scope='session')
 def event_loop():
