@@ -1,5 +1,4 @@
 import datetime
-import random
 import uuid
 
 TEST_MOVIE_DATA = {
