@@ -149,16 +149,14 @@ class PersonService(Service):
 
 @lru_cache()
 def get_person_service(
-        redis_client: Redis = Depends(get_redis),
+        cache: Cache = Depends(get_cache),
         storage: Storage = Depends(get_storage)
 ) -> PersonService:
-    cache: Cache = get_cache(model=PersonFilms, redis=redis_client)
-    film_cache: Cache = get_cache(model=FilmSearchResult, redis=redis_client)
 
     person_storage = storage
     film_storage = deepcopy(storage)
 
-    return PersonService(cache=cache,
+    return PersonService(cache=cache.init(model=PersonFilms),
                          storage=person_storage.init(model=Person, index="persons"),
                          film_storage=film_storage.init(model=Film, index="movies"),
-                         film_cache=film_cache)
+                         film_cache=cache.init(model=FilmSearchResult))

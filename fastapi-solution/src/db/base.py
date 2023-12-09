@@ -9,15 +9,19 @@ class Cache(ABC):
     def __call__(self):
         return self
 
-    async def get(self, key: str) -> BaseModel | None:
+    @abstractmethod
+    async def get(self, key: str) -> str | None:
         pass
 
+    @abstractmethod
     async def set(self, key: str, value: BaseModel, expire: int):
         pass
 
+    @abstractmethod
     async def get_list(self, key: str) -> list[BaseModel]:
         pass
 
+    @abstractmethod
     async def set_list(self, key: str, value: list[BaseModel], expire: int):
         pass
 

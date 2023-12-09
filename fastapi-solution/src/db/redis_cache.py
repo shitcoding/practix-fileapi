@@ -7,9 +7,16 @@ from .base import Cache
 
 
 class RedisCache(Cache):
-    def __init__(self, model, redis: Redis):
+    def __init__(self, redis: Redis):
         self.client = redis
+        self.model = None
+
+    def init(
+            self,
+            model: type[BaseModel],
+    ) -> "RedisCache":
         self.model = model
+        return self
 
     async def get(self, key: str) -> BaseModel | None:
         data = await self.client.get(key)
