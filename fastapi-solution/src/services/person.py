@@ -81,7 +81,12 @@ class PersonService(ExtService):
         return short_films
 
     async def _get_person_from_cache(self, person_id: str) -> Optional[PersonFilms]:
-        return await self.cache.get(f"{self.cache_prefix}:{person_id}")
+        data = await self.cache.get(f"{self.cache_prefix}:{person_id}")
+        if not data:
+            return None
+        deserialized_data = json.loads(data)
+        person = PersonFilms.parse_obj(deserialized_data)
+        return person
 
     async def _get_persons_from_cache(self, query: dict) -> List[PersonFilms]:
         return await self.cache.get_list(f"{self.cache_prefix}:{json.dumps(query)}")

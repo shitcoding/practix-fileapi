@@ -16,9 +16,8 @@ from urllib3 import HTTPResponse
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
 
-pytest_plugins = [
-    'tests.functional.fixtures.fixture_genres',
-]
+
+pytest_plugins = ['tests.functional.fixtures.fixture_persons',]
 
 
 @pytest_asyncio.fixture(scope='session')
