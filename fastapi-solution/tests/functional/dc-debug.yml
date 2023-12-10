@@ -1,0 +1,63 @@
+version: '3.9'
+
+
+x-env-variables: &x-env-variables
+  PYTHONPATH: /fastapi-solution/src:/fastapi-solution/tests
+  APP_HOST: fastapi
+  APP_PORT: 8000
+  ES_HOST: elasticsearch
+  ES_PORT: 9200
+  ES_MOVIES_INDEX: movies
+  ES_GENRES_INDEX: genres
+  ES_PERSONS_INDEX: persons
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+
+
+services:
+  fastapi:
+    container_name: fastapi
+    build: ../../src
+    volumes:
+      - ../../src/:/opt/app
+    environment: *x-env-variables
+    entrypoint: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    ports:
+      - 8000:8000
+    depends_on:
+      - elasticsearch
+      - redis
+
+  elasticsearch:
+    container_name: elasticsearch
+    restart: always
+    image: elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    ports:
+      - 9200:9200
+
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    environment:
+      REDIS_USER: admin
+      REDIS_PASSWORD: admin
+    ports:
+      - 6379:6379
+
+  tests:
+    container_name: tests
+    image: python:3.11.5
+    environment: *x-env-variables
+    volumes:
+      - ../../:/fastapi-solution/:ro
+    entrypoint: >
+      sh -c "pip install -r /fastapi-solution/tests/functional/requirements.txt && sleep infinity"
+    depends_on:
+      - fastapi
+      - elasticsearch
+      - redis

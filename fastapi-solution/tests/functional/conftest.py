@@ -102,7 +102,7 @@ async def make_get_request(asyncio_client: aiohttp.ClientSession):
             async with (asyncio_client.get(url, params=query_data) as response):
                 logger.info(f'Response status: {response.status}')
                 response_json = await response.json()
-                time.sleep(0.2)
+                time.sleep(0.5)
                 if trying == 3:
                     return HTTPResponse(status=HTTPStatus.NOT_FOUND)
                 if len(response_json) == 0 or type(response_json) == dict and response_json.get('detail'):

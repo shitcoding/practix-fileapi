@@ -49,7 +49,7 @@ class FilmService(Service):
 
         if cached_films:
             return [
-                FilmSearchResult.parse_obj(json.loads(film_json))
+                FilmSearchResult.parse_obj(film_json)
                 for film_json in cached_films
             ]
 
@@ -99,7 +99,7 @@ class FilmService(Service):
         cached_films = await self._get_list_from_cache(cache_key)
         if cached_films:
             return [
-                FilmSearchResult.parse_obj(json.loads(film_json))
+                FilmSearchResult.parse_obj(film_json)
                 for film_json in cached_films
             ]
 
@@ -210,7 +210,7 @@ class FilmService(Service):
 
     async def _put_list_to_cache(self, cache_key: str, data: list):
         try:
-            await self.redis.set_list(cache_key, json.dumps(data), expire=EXPIRE)
+            await self.redis.set_list(cache_key, data, expire=EXPIRE)
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 
