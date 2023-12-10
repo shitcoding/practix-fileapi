@@ -85,9 +85,8 @@ class GenreService(ExtService):
 
 @lru_cache()
 def get_genre_service(
-        redis_client: Redis = Depends(get_redis),
+        cache: Cache = Depends(get_cache),
         storage: Storage = Depends(get_storage)
 
 ) -> GenreService:
-    cache: Cache = get_cache(model=Genre, redis=redis_client)
-    return GenreService(cache, storage.init(model=Genre, index="genres"))
+    return GenreService(cache.init(model=Genre), storage.init(model=Genre, index="genres"))
