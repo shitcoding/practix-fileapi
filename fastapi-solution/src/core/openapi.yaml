@@ -1,0 +1,188 @@
+openapi: 3.0.0
+info:
+  title: fastapi-solution
+  description: Сервис fastapi для работы с фильмами
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/
+    description: Разработческий сервер
+paths:
+  /films:
+    get:
+      summary: Получение списка фильмов
+      operationId: list_films
+      responses:
+        '200':
+          description: Список фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmSummary'
+  /films/{FILM_ID}/SIMILAR:
+    get:
+      summary: Получение списка похожих фильмов
+      operationId: get_similar_films
+      parameters:
+        - in: path
+          name: FILM_ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список похожих фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmSummary'
+  /films/SEARCH:
+    get:
+      summary: Поиск фильмов
+      operationId: search_films
+      responses:
+        '200':
+          description: Результаты поиска фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmSummary'
+  /films/{FILM_ID}:
+    get:
+      summary: Получение деталей фильма
+      operationId: film_details
+      parameters:
+        - in: path
+          name: FILM_ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Детали фильма
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+  /genres/{UUID}:
+    get:
+      summary: Получение информации о жанре
+      operationId: genre_name
+      parameters:
+        - in: path
+          name: UUID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о жанре
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+  /genres/:
+    get:
+      summary: Получение списка жанров
+      operationId: genres_list
+      responses:
+        '200':
+          description: Список жанров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Genre'
+  /persons/{UUID}:
+    get:
+      summary: Получение информации о персоне
+      operationId: person_name
+      parameters:
+        - in: path
+          name: UUID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о персоне
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+  /persons/SEARCH/:
+    get:
+      summary: Поиск персон
+      operationId: persons_list
+      responses:
+        '200':
+          description: Результаты поиска персон
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+  /persons/{UUID}/FILMS:
+    get:
+      summary: Получение фильмов, связанных с персоной
+      operationId: person_films
+      parameters:
+        - in: path
+          name: UUID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список фильмов, связанных с персоной
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmSummary'
+components:
+  schemas:
+    FilmSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+    Film:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        release_date:
+          type: string
+        rating:
+          type: number
+    Genre:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        bio:
+          type: string
