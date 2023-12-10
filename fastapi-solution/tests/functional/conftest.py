@@ -10,7 +10,6 @@ from elasticsearch.helpers import async_bulk
 from tests.functional.logger import logger
 from tests.functional.settings import get_settings
 from tests.functional.testdata.es_mapping import SETTINGS
-from tests.functional.testdata.movies_data import TEST_MOVIE_DATA
 from urllib3 import HTTPResponse
 
 settings = get_settings()
@@ -18,7 +17,8 @@ DataGenerator = Callable[[], list[dict[str, any]]]
 
 
 pytest_plugins = ['tests.functional.fixtures.fixture_persons',
-                  'tests.functional.fixtures.fixture_genres',]
+                  'tests.functional.fixtures.fixture_genres',
+                  'tests.functional.fixtures.fixture_movies']
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -71,14 +71,6 @@ async def es_data_loader(
         )
 
     return inner
-
-
-@pytest_asyncio.fixture(scope='session')
-def movie_data_generator():
-    def generate_data():
-        return [TEST_MOVIE_DATA for _ in range(60)]
-
-    return generate_data
 
 
 @pytest_asyncio.fixture(name='es_write_data', scope='session')
