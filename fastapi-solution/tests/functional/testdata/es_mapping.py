@@ -1,31 +1,84 @@
 MOVIE_MAPPING = {
-    "mappings": {
+        "dynamic": "strict",
         "properties": {
-            "uuid": {"type": "keyword"},
-            "imdb_rating": {"type": "float"},
-            "genre": {"type": "keyword"},
-            "title": {"type": "text"},
-            "description": {"type": "text"},
-            "director": {"type": "keyword"},
-            "actors_names": {"type": "keyword"},
-            "writers_names": {"type": "keyword"},
-            "actors": {
-                "type": "nested",
-                "properties": {
-                    "id": {"type": "keyword"},
-                    "name": {"type": "keyword"}
-                }
-            },
-            "writers": {
-                "type": "nested",
-                "properties": {
-                    "id": {"type": "keyword"},
-                    "name": {"type": "keyword"}
-                }
-            },
-            "created_at": {"type": "date"},
-            "updated_at": {"type": "date"},
-            "film_work_type": {"type": "keyword"}
+          "uuid": {
+            "type": "keyword"
+          },
+          "imdb_rating": {
+            "type": "float"
+          },
+          "genre": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
+          },
+          "title": {
+            "type": "text",
+            "analyzer": "ru_en",
+            "fields": {
+              "raw": {
+                "type":  "keyword"
+              }
+            }
+          },
+          "description": {
+            "type": "text",
+            "analyzer": "ru_en"
+          },
+          "directors": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "full_name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
+          },
+          "actors_names": {
+            "type": "text",
+            "analyzer": "ru_en"
+          },
+          "writers_names": {
+            "type": "text",
+            "analyzer": "ru_en"
+          },
+          "actors": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "full_name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
+          },
+          "writers": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+              "uuid": {
+                "type": "keyword"
+              },
+              "full_name": {
+                "type": "text",
+                "analyzer": "ru_en"
+              }
+            }
+          }
         }
-    }
-}
+      }
