@@ -12,12 +12,12 @@ from elasticsearch_dsl import Search
 from fastapi import Depends
 from models.genre import Genre
 from redis.asyncio import Redis
-from services.base import Service
+from services.base import ExtService
 
 logger = logging.getLogger(__name__)
 
 
-class GenreService(Service):
+class GenreService(ExtService):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_prefix = "GENRE"
