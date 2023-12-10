@@ -153,10 +153,13 @@ def get_person_service(
         storage: Storage = Depends(get_storage)
 ) -> PersonService:
 
+    person_cache = cache
+    film_cache = deepcopy(cache)
+
     person_storage = storage
     film_storage = deepcopy(storage)
 
-    return PersonService(cache=cache.init(model=PersonFilms),
+    return PersonService(cache=person_cache.init(model=PersonFilms),
                          storage=person_storage.init(model=Person, index="persons"),
                          film_storage=film_storage.init(model=Film, index="movies"),
-                         film_cache=cache.init(model=FilmSearchResult))
+                         film_cache=film_cache.init(model=FilmSearchResult))

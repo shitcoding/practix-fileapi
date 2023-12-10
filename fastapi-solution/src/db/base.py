@@ -10,6 +10,10 @@ class Cache(ABC):
         return self
 
     @abstractmethod
+    def init(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
     async def get(self, key: str) -> str | None:
         pass
 

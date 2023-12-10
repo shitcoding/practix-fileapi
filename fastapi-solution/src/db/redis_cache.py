@@ -18,6 +18,9 @@ class RedisCache(Cache):
         self.model = model
         return self
 
+    def __deepcopy__(self, memodict=None):
+        return type(self)(self.client)
+
     async def get(self, key: str) -> BaseModel | None:
         data = await self.client.get(key)
         if not data:
