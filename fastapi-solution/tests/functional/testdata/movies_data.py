@@ -2,23 +2,42 @@ import datetime
 import uuid
 
 TEST_MOVIE_DATA = {
-    'uuid': str(uuid.uuid4()),
-    'imdb_rating': 8.5,
-    'genre': ['Action', 'Sci-Fi'],
-    'title': 'The Star',
-    'description': 'New World',
-    'director': ['Stan'],
-    'actors_names': ['Ann', 'Bob'],
-    'writers_names': ['Ben', 'Howard'],
-    'actors': [
-        {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},
-        {'id': 'fb111f22-121e-44a7-b78f-b19191810fbf', 'name': 'Bob'}
-    ],
-    'writers': [
-        {'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5', 'name': 'Ben'},
-        {'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6', 'name': 'Howard'}
-    ],
-    'created_at': datetime.datetime.now().isoformat(),
-    'updated_at': datetime.datetime.now().isoformat(),
-    'film_work_type': 'movie'
+  "imdb_rating": 5,
+  "title": "Dancing Star",
+  "description": "",
+  "genre": [
+    {
+      "uuid": "9c91a5b2-eb70-4889-8581-ebe427370edd",
+      "name": "Musical"
+    },
+    {
+      "uuid": "237fd1e4-c98e-454e-aa13-8a13fb7547b5",
+      "name": "Romance"
+    }
+  ],
+  "directors": [
+    {
+      "uuid": "b2d686a6-f029-41c3-ad9e-fc586117866a",
+      "full_name": "Susara Dinal"
+    }
+  ],
+  "actors": [
+    {
+      "uuid": "6c961189-7f16-4938-96cc-7a034547dded",
+      "full_name": "Dushyanth Weeraman"
+    },
+    {
+      "uuid": "fbedcdd1-74b4-42f8-a04c-4f2dc212f1c0",
+      "full_name": "Shiroshi Romeshika"
+    },
+    {
+      "uuid": "00ead298-388c-4a94-8969-553e8096f2c6",
+      "full_name": "Srilal Ahangama"
+    },
+    {
+      "uuid": "c15fdba0-6afe-472e-96f6-8c22afd8c04c",
+      "full_name": "Malini Fonseka"
+    }
+  ],
+  "writers": []
 }

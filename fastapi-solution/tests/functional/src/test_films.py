@@ -17,7 +17,7 @@ async def test_list_films(es_data_loader, make_get_request, movie_data_generator
     response = await make_get_request(path='films/', query_data={})
     assert response['status'] == 200
     assert isinstance(response['body'], list)
-    assert len(response['body']) == 50
+    assert len(response['body']) == 10
 
 
 
@@ -29,11 +29,11 @@ async def test_get_similar_films(es_data_loader, make_get_request, movie_data_ge
         mapping=MOVIE_MAPPING,
     )
 
-    valid_film_id = "e42d300d-d671-4877-aa3f-d7fb1ced52ad"
+    valid_film_id = "82a52458-fd52-4313-b124-ccb160c28afb"
     response = await make_get_request(f'films/{valid_film_id}/similar', {})
     assert response['status'] == 200
     assert isinstance(response['body'], list)
-    assert len(response['body']) == 50
+    assert len(response['body']) == 10
 
 
 
@@ -61,7 +61,7 @@ async def test_film_details(es_data_loader, make_get_request, movie_data_generat
         mapping=MOVIE_MAPPING,
     )
 
-    valid_film_id = "e42d300d-d671-4877-aa3f-d7fb1ced52ad"
+    valid_film_id = "82a52458-fd52-4313-b124-ccb160c28afb"
     response = await make_get_request(f'films/{valid_film_id}', {})
     assert response['status'] == 200
     assert isinstance(response['body'], dict)
