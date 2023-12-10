@@ -4,7 +4,7 @@ from elasticsearch import AsyncElasticsearch
 from core import config
 
 redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_SCHEME}://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+es = AsyncElasticsearch(hosts=[f'{config.ES_SCHEME}://{config.ES_HOST}:{config.ES_PORT}'])
 
 
 async def get_redis() -> Redis:
@@ -16,7 +16,7 @@ async def get_redis() -> Redis:
 
 
 async def get_elasticsearch() -> AsyncElasticsearch:
-    client = AsyncElasticsearch(hosts=[f'{config.ELASTIC_SCHEME}://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+    client = AsyncElasticsearch(hosts=[f'{config.ES_SCHEME}://{config.ES_HOST}:{config.ES_PORT}'])
     try:
         yield client
     finally:

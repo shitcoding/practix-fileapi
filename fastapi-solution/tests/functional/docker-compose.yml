@@ -8,6 +8,8 @@ x-env-variables: &x-env-variables
   ES_HOST: elasticsearch
   ES_PORT: 9200
   ES_MOVIES_INDEX: movies
+  ES_GENRES_INDEX: genres
+  ES_PERSONS_INDEX: persons
   REDIS_HOST: redis
   REDIS_PORT: 6379
 
