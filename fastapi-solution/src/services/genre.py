@@ -3,7 +3,7 @@ import logging
 from functools import lru_cache
 from typing import List, Optional
 
-from core.config import EXPIRE
+from core.config import settings
 from db.base import Cache, Storage
 from db.db import get_cache, get_storage
 from elasticsearch_dsl import Search
@@ -62,10 +62,10 @@ class GenreService(ExtService):
         return await self.cache.get_list(f"{self.cache_prefix}:{json.dumps(query)}")
 
     async def _put_genre_to_cache(self, genre: Genre):
-        await self.cache.set(f"{self.cache_prefix}:{genre.uuid}", genre, EXPIRE)
+        await self.cache.set(f"{self.cache_prefix}:{genre.uuid}", genre, settings.redis.redis_expire)
 
     async def _put_genres_to_cache(self, query: dict, genres: list[Genre]):
-        await self.cache.set_list(f"{self.cache_prefix}:{json.dumps(query)}", genres, EXPIRE)
+        await self.cache.set_list(f"{self.cache_prefix}:{json.dumps(query)}", genres, settings.redis.redis_expire)
 
     @staticmethod
     def _build_search_query(query: str, sort: str, page: int, size: int):
@@ -86,4 +86,4 @@ def get_genre_service(
         storage: Storage = Depends(get_storage)
 
 ) -> GenreService:
-    return GenreService(cache.init(model=Genre), storage.init(model=Genre, index="genres"))
+    return GenreService(cache.init(model=Genre), storage.init(model=Genre, index=settings.elastic.es_genres_index))

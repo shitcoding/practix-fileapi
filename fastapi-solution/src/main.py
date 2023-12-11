@@ -2,12 +2,12 @@ import uvicorn
 from api.v1.films import router as f_router
 from api.v1.genres import router as g_router
 from api.v1.persons import router as p_router
-from core import config
+from core.config import settings
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=settings.project.project_name,
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,

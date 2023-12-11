@@ -1,14 +1,14 @@
 from redis.asyncio import Redis
 from elasticsearch import AsyncElasticsearch
 
-from core import config
+from core.config import settings
 
-redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-es = AsyncElasticsearch(hosts=[f'{config.ES_SCHEME}://{config.ES_HOST}:{config.ES_PORT}'])
+redis = Redis(host=settings.redis.redis_host, port=settings.redis.redis_port)
+es = AsyncElasticsearch(hosts=[f'{settings.elastic.es_scheme}://{settings.elastic.es_host}:{settings.elastic.es_port}'])
 
 
 async def get_redis() -> Redis:
-    client = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
+    client = Redis(host=settings.redis.redis_host, port=settings.redis.redis_port)
     try:
         yield client
     finally:
@@ -16,7 +16,9 @@ async def get_redis() -> Redis:
 
 
 async def get_elasticsearch() -> AsyncElasticsearch:
-    client = AsyncElasticsearch(hosts=[f'{config.ES_SCHEME}://{config.ES_HOST}:{config.ES_PORT}'])
+    client = AsyncElasticsearch(hosts=[f'''{settings.elastic.es_scheme}://
+                                           {settings.elastic.es_host}:
+                                           {settings.elastic.es_port}'''])
     try:
         yield client
     finally:

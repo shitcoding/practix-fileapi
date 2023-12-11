@@ -4,7 +4,7 @@ from functools import lru_cache
 from typing import List, Optional
 from copy import deepcopy
 
-from core.config import EXPIRE
+from core.config import settings
 from db.base import Cache, Storage
 from db.db import get_cache, get_storage
 from elasticsearch_dsl import Q, Search
@@ -90,16 +90,16 @@ class PersonService(ExtService):
         return await self.cache.get_list(f"{self.cache_prefix}:{json.dumps(query)}")
 
     async def _put_person_to_cache(self, person: PersonFilms):
-        await self.cache.set(f"{self.cache_prefix}:{person.uuid}", person, EXPIRE)
+        await self.cache.set(f"{self.cache_prefix}:{person.uuid}", person, settings.redis.redis_expire)
 
     async def _put_persons_to_cache(self, query: dict, persons: list[PersonFilms]):
-        await self.cache.set_list(f"{self.cache_prefix}:{json.dumps(query)}", persons, EXPIRE)
+        await self.cache.set_list(f"{self.cache_prefix}:{json.dumps(query)}", persons, settings.redis.redis_expire)
 
     async def _get_person_films_from_cache(self, person_id: str) -> Optional[List[FilmSearchResult]]:
         return await self.film_cache.get_list(f"{self.cache_prefix}:{person_id}:films")
 
     async def _put_person_films_to_cache(self, person_id: str, films: list[FilmSearchResult]):
-        await self.film_cache.set_list(f"{self.cache_prefix}:{person_id}:films", films, EXPIRE)
+        await self.film_cache.set_list(f"{self.cache_prefix}:{person_id}:films", films, settings.redis.redis_expire)
 
     @staticmethod
     def _build_search_query(query: str, sort: str, page: int, size: int) -> Search:
@@ -163,6 +163,6 @@ def get_person_service(
     film_storage = deepcopy(storage)
 
     return PersonService(cache=person_cache.init(model=PersonFilms),
-                         storage=person_storage.init(model=Person, index="persons"),
-                         film_storage=film_storage.init(model=Film, index="movies"),
+                         storage=person_storage.init(model=Person, index=settings.elastic.es_persons_index),
+                         film_storage=film_storage.init(model=Film, index=settings.elastic.es_movies_index),
                          film_cache=film_cache.init(model=FilmSearchResult))

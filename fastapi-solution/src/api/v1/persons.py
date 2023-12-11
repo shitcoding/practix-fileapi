@@ -2,7 +2,7 @@ import logging
 import traceback
 from http import HTTPStatus
 
-from core.config import DEFAULT_PAGE_SIZE
+from core.config import settings
 from fastapi import APIRouter, Depends, HTTPException
 from models.film import FilmSearchResult
 from models.person import PersonFilms
@@ -26,8 +26,11 @@ async def person_name(uuid: str, person_service: PersonService = Depends(get_per
 
 
 @router.get('/search/', response_model=list[PersonFilms])
-async def persons_list(query: str = "", sort: str = "", page_number: int = 1, page_size: int = DEFAULT_PAGE_SIZE,
-                       person_service: PersonService = Depends(get_person_service)) -> list[PersonFilms]:
+async def persons_list(query: str = "", sort: str = "",
+                       page_number: int = 1,
+                       page_size: int = settings.fastapi.default_page_size,
+                       person_service: PersonService = Depends(get_person_service)
+                       ) -> list[PersonFilms]:
     try:
         persons = await person_service.search(query=query, sort=sort, page=page_number, size=page_size)
     except Exception as e:
@@ -38,8 +41,11 @@ async def persons_list(query: str = "", sort: str = "", page_number: int = 1, pa
 
 
 @router.get('/{uuid}/films', response_model=list[FilmSearchResult])
-async def person_films(uuid: str, sort: str = "", page_number: int = 1, page_size: int = DEFAULT_PAGE_SIZE,
-                       person_service: PersonService = Depends(get_person_service)) -> list[FilmSearchResult]:
+async def person_films(uuid: str, sort: str = "",
+                       page_number: int = 1,
+                       page_size: int = settings.fastapi.default_page_size,
+                       person_service: PersonService = Depends(get_person_service)
+                       ) -> list[FilmSearchResult]:
     try:
         films = await person_service.film_search(uuid=uuid, sort=sort, page=page_number, size=page_size)
     except Exception as e:

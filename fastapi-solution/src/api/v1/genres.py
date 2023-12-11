@@ -1,7 +1,7 @@
 import logging
 from http import HTTPStatus
 
-from core.config import DEFAULT_PAGE_SIZE
+from core.config import settings
 from fastapi import APIRouter, Depends, HTTPException
 from models.genre import Genre
 from services.genre import GenreService, get_genre_service
@@ -22,8 +22,11 @@ async def genre_name(uuid: str, genre_service: GenreService = Depends(get_genre_
 
 
 @router.get('/', response_model=list[Genre])
-async def genres_list(query: str = "", sort: str = "", page_number: int = 1, page_size: int = DEFAULT_PAGE_SIZE,
-                      genre_service: GenreService = Depends(get_genre_service)) -> list[Genre]:
+async def genres_list(query: str = "", sort: str = "",
+                      page_number: int = 1,
+                      page_size: int = settings.fastapi.default_page_size,
+                      genre_service: GenreService = Depends(get_genre_service)
+                      ) -> list[Genre]:
     try:
         genres = await genre_service.search(query=query, sort=sort, page=page_number, size=page_size)
     except Exception as e:

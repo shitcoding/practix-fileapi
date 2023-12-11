@@ -7,7 +7,7 @@ from typing import Optional
 from elasticsearch import NotFoundError
 from fastapi import Depends
 
-from core.config import EXPIRE
+from core.config import settings
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
 from models.film import Film, FilmList, FilmSearchResult
@@ -195,7 +195,7 @@ class FilmService(Service):
         return film
 
     async def _put_film_to_cache(self, film: Film):
-        await self.redis.set(film.uuid, film, EXPIRE)
+        await self.redis.set(film.uuid, film, settings.redis.redis_expire)
 
     async def _get_list_from_cache(self, cache_key: str) -> Optional[list]:
         try:
@@ -207,7 +207,7 @@ class FilmService(Service):
 
     async def _put_list_to_cache(self, cache_key: str, data: list):
         try:
-            await self.redis.set_list(cache_key, data, expire=EXPIRE)
+            await self.redis.set_list(cache_key, data, expire=settings.redis.redis_expire)
         except Exception as e:
             logging.error(f"Error saving to cache: {e}")
 
@@ -216,4 +216,5 @@ async def get_film_service(
         redis: Cache = Depends(get_cache),
         elastic: Storage = Depends(get_storage),
 ) -> FilmService:
-    return FilmService(redis=redis.init(model=Film), elastic=elastic.init(model=Film, index="movies"))
+    return FilmService(redis=redis.init(model=Film),
+                       elastic=elastic.init(model=Film, index=settings.elastic.es_movies_index))
