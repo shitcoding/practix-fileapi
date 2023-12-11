@@ -2,7 +2,7 @@ import pytest
 from tests.functional.settings import get_settings
 from tests.functional.testdata.es_mapping import MOVIE_MAPPING
 from http import HTTPStatus
-from tests.functional.testdata.person_data import TEST_PERSON_DATA
+from tests.functional.testdata.person_data import TEST_PERSON_DATA_INDEX
 
 test_settings = get_settings()
 
@@ -14,7 +14,7 @@ async def test_search(es_data_loader, make_get_request, movie_data_generator):
         data_generator=movie_data_generator,
         mapping=MOVIE_MAPPING,
     )
-    query_data = {'query': 'The Star'}
+    query_data = {'query': 'Dancing Star'}
     response = await make_get_request(
         path='films/search',
         query_data=query_data,
@@ -23,7 +23,7 @@ async def test_search(es_data_loader, make_get_request, movie_data_generator):
     status = response.get('status')
     body = response.get('body')
 
-    assert status == 200
+    assert status == HTTPStatus.OK
     assert len(body) == 50
 
 
@@ -34,6 +34,5 @@ async def test_list_with_search_wrong_name(make_get_request):
         path=f'persons/search/',
         query_data={'query': 'Rabindranath'}
     )
-    print(response['body'])
     assert response['status'] == HTTPStatus.OK
-    assert response['body'][0]['uuid'] == '6c83581b-03ae-4f6a-84f2-d946c3e5b981'
+    assert response['body'][0]['uuid'] == TEST_PERSON_DATA_INDEX[0]['uuid']
