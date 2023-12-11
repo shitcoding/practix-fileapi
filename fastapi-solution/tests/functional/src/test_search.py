@@ -31,7 +31,7 @@ async def test_search(es_data_loader, make_get_request, movie_data_generator):
 @pytest.mark.usefixtures("person_to_es")
 async def test_list_with_search_wrong_name(make_get_request):
     response = await make_get_request(
-        path=f'persons/search/',
+        path='persons/search/',
         query_data={'query': 'Rabindranath'}
     )
     assert response['status'] == HTTPStatus.OK

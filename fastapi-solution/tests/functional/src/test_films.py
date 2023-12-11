@@ -23,7 +23,6 @@ async def test_list_films(es_data_loader, make_get_request, movie_data_generator
     assert len(response['body']) == 10
 
 
-
 @pytest.mark.asyncio
 async def test_get_similar_films(es_data_loader, make_get_request, movie_data_generator):
     await es_data_loader(
@@ -37,7 +36,6 @@ async def test_get_similar_films(es_data_loader, make_get_request, movie_data_ge
     assert response['status'] == HTTPStatus.OK
     assert isinstance(response['body'], list)
     assert len(response['body']) == 10
-
 
 
 @pytest.mark.asyncio
@@ -55,7 +53,6 @@ async def test_search_films(es_data_loader, make_get_request, movie_data_generat
     assert len(response['body']) == 50
 
 
-
 @pytest.mark.asyncio
 async def test_film_details(es_data_loader, make_get_request, movie_data_generator):
     await es_data_loader(
@@ -69,7 +66,6 @@ async def test_film_details(es_data_loader, make_get_request, movie_data_generat
     assert response['status'] == HTTPStatus.OK
     assert isinstance(response['body'], dict)
     assert len(response['body']) == 8
-
 
     invalid_film_id = f'{FIRST_MOVIE_ID}_invalid'
     response = await make_get_request(f'films/{invalid_film_id}', {})

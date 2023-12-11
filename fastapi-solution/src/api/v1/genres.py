@@ -1,5 +1,4 @@
 import logging
-import traceback
 from http import HTTPStatus
 
 from core.config import DEFAULT_PAGE_SIZE
@@ -10,6 +9,7 @@ from services.genre import GenreService, get_genre_service
 router = APIRouter()
 
 logger = logging.getLogger(__name__)
+
 
 @router.get('/{uuid}', response_model=Genre)
 async def genre_name(uuid: str, genre_service: GenreService = Depends(get_genre_service)) -> Genre:

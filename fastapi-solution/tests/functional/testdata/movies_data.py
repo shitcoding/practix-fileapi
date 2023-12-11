@@ -1,6 +1,3 @@
-import datetime
-import uuid
-
 FIRST_MOVIE_ID = '82a52458-fd52-4313-b124-ccb160c28afb'
 
 TEST_MOVIE_DATA = {

@@ -15,7 +15,6 @@ from urllib3 import HTTPResponse
 settings = get_settings()
 DataGenerator = Callable[[], list[dict[str, any]]]
 
-
 pytest_plugins = ['tests.functional.fixtures.fixture_persons',
                   'tests.functional.fixtures.fixture_genres',
                   'tests.functional.fixtures.fixture_movies']
@@ -84,7 +83,6 @@ def es_write_data(es_client: AsyncElasticsearch):
         )
         updated, errors = await async_bulk(client=es_client, actions=data)
 
-
         if errors:
             logger.error(errors)
             raise Exception('Ошибка записи данных в Elasticsearch')
@@ -105,7 +103,7 @@ async def make_get_request(asyncio_client: aiohttp.ClientSession):
                 time.sleep(0.5)
                 if trying == 3:
                     return HTTPResponse(status=HTTPStatus.NOT_FOUND)
-                if len(response_json) == 0 or type(response_json) == dict and response_json.get('detail'):
+                if len(response_json) == 0 or type(response_json) is dict and response_json.get('detail'):
                     trying += 1
                     continue
                 return {

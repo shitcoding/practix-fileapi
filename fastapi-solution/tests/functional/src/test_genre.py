@@ -25,7 +25,7 @@ async def test_genre_by_name(make_get_request):
 
     genre = TEST_GENRE_DATA[3]['name']
     response = await make_get_request(
-        path=f'genres/',
+        path='genres/',
         query_data={'query': genre}
     )
 
@@ -40,8 +40,6 @@ async def test_all_genre(make_get_request):
         path='genres/'
     )
 
-    status = response.get('status')
-    body = response.get('body')
     assert response['status'] == HTTPStatus.OK
     assert len(response['body']) == len(TEST_GENRE_DATA)
 
@@ -50,7 +48,7 @@ async def test_all_genre(make_get_request):
 @pytest.mark.usefixtures("genre_to_es")
 async def test_list_with_search_wrong_name(make_get_request):
     response = await make_get_request(
-        path=f'genres/',
+        path='genres/',
         query_data={'query': 'wrong_name'}
     )
     assert response.status == HTTPStatus.NOT_FOUND

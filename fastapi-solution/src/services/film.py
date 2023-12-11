@@ -6,22 +6,19 @@ from typing import Optional
 
 from elasticsearch import NotFoundError
 from fastapi import Depends
-from redis.asyncio import Redis
 
 from core.config import EXPIRE
-from dependencies import get_redis
 from db.db import get_cache, get_storage
 from db.base import Cache, Storage
 from models.film import Film, FilmList, FilmSearchResult
 from services.base import Service
-
 
 logger = logging.getLogger(__name__)
 
 
 class FilmService(Service):
     def __init__(self, redis: Cache, elastic: Storage):
-        super().__init__(redis,elastic)
+        super().__init__(redis, elastic)
         self.redis = redis
         self.elastic = elastic
         self.cache_prefix = 'FILM'
@@ -89,10 +86,10 @@ class FilmService(Service):
             return []
 
     async def search_films(
-        self,
-        query: str,
-        page_number: int,
-        page_size: int
+            self,
+            query: str,
+            page_number: int,
+            page_size: int
     ) -> list[FilmSearchResult]:
 
         cache_key = f"{self.cache_prefix}:search_films:{query}:{page_number}:{page_size}"
@@ -133,12 +130,12 @@ class FilmService(Service):
             return []
 
     async def list_films(
-        self,
-        genre: Optional[str] = None,
-        sort: Optional[str] = None
+            self,
+            genre: Optional[str] = None,
+            sort: Optional[str] = None
     ) -> list[FilmList]:
 
-        cache_key = f"{self.cache_prefix}:list_films:{genre if genre else '_'}:{sort if sort else '_' }"
+        cache_key = f"{self.cache_prefix}:list_films:{genre if genre else '_'}:{sort if sort else '_'}"
 
         cached_films = await self._get_list_from_cache(cache_key)
         if cached_films:
@@ -216,8 +213,7 @@ class FilmService(Service):
 
 
 async def get_film_service(
-    redis: Cache = Depends(get_cache),
-    elastic: Storage = Depends(get_storage),
+        redis: Cache = Depends(get_cache),
+        elastic: Storage = Depends(get_storage),
 ) -> FilmService:
     return FilmService(redis=redis.init(model=Film), elastic=elastic.init(model=Film, index="movies"))
-

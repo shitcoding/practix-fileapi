@@ -6,12 +6,9 @@ from typing import List, Optional
 from core.config import EXPIRE
 from db.base import Cache, Storage
 from db.db import get_cache, get_storage
-from dependencies import get_elasticsearch, get_redis
-from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Search
 from fastapi import Depends
 from models.genre import Genre
-from redis.asyncio import Redis
 from services.base import ExtService
 
 logger = logging.getLogger(__name__)

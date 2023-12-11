@@ -12,13 +12,17 @@ test_settings = get_settings()
 def person_data_generator():
     def generate_data():
         return TEST_PERSON_DATA_INDEX
+
     return generate_data
+
 
 @pytest_asyncio.fixture(scope='session')
 def film_data_generator():
     def generate_data():
         return TEST_FILM
+
     return generate_data
+
 
 @pytest_asyncio.fixture(scope='session')
 async def person_to_es(es_data_loader, person_data_generator, film_data_generator):

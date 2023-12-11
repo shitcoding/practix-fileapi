@@ -7,17 +7,17 @@ class Service(ABC):
     def __init__(self, cache: Cache, storage: Storage):
         self.cache = cache
         self.storage = storage
-    
+
     @abstractmethod
-    def get_by_id(self, genre_id: str) :
+    def get_by_id(self, genre_id: str):
         pass
 
-class ExtService(Service):   
-    @abstractmethod 
+
+class ExtService(Service):
+    @abstractmethod
     def search(self, query: str, sort: str, page: int, size: int):
         pass
-    @abstractmethod
+
+    @staticmethod
     def _build_search_query(query: str, sort: str, page: int, size: int):
         pass
-
-

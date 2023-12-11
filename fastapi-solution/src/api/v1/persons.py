@@ -12,6 +12,7 @@ router = APIRouter()
 
 logger = logging.getLogger(__name__)
 
+
 @router.get('/{uuid}', response_model=PersonFilms)
 async def person_name(uuid: str, person_service: PersonService = Depends(get_person_service)) -> PersonFilms:
     try:

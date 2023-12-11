@@ -7,13 +7,10 @@ from copy import deepcopy
 from core.config import EXPIRE
 from db.base import Cache, Storage
 from db.db import get_cache, get_storage
-from dependencies import get_elasticsearch, get_redis
-from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Q, Search
 from fastapi import Depends
 from models.film import Film, FilmSearchResult
 from models.person import FilmPerson, Person, PersonFilms, Role
-from redis.asyncio import Redis
 from services.base import ExtService
 
 logger = logging.getLogger(__name__)
@@ -73,7 +70,8 @@ class PersonService(ExtService):
             res.append(PersonFilms(films=short_films, **person))
         return res
 
-    async def _get_person_films_from_storage(self, person_id: str, sort: str, page: int, size: int) -> List[FilmSearchResult]:
+    async def _get_person_films_from_storage(self, person_id: str, sort: str, page: int, size: int)\
+            -> List[FilmSearchResult]:
         film_search = self._build_film_search_query(person_id, sort, page, size)
         print(film_search.to_dict())
         films = await self.film_storage.search(query=film_search.to_dict())

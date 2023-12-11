@@ -15,7 +15,7 @@ def genre_data_generator():
     return generate_data
 
 
-@pytest_asyncio.fixture( scope='session')
+@pytest_asyncio.fixture(scope='session')
 async def genre_to_es(es_data_loader, genre_data_generator):
     logging.info('Loading genres to ES...')
     await es_data_loader(

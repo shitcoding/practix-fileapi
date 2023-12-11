@@ -1,5 +1,3 @@
-import json
-
 from pydantic import BaseModel, TypeAdapter
 from redis.asyncio import Redis
 
