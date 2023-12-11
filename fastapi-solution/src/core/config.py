@@ -50,5 +50,5 @@ class Settings(BaseSettings):
     elastic: ElasticsearchSettings = ElasticsearchSettings()
     redis: RedisSettings = RedisSettings()
 
-settings = Settings()
 
+settings = Settings()
