@@ -16,9 +16,8 @@ async def get_redis() -> Redis:
 
 
 async def get_elasticsearch() -> AsyncElasticsearch:
-    client = AsyncElasticsearch(hosts=[f'''{settings.elastic.es_scheme}://
-                                           {settings.elastic.es_host}:
-                                           {settings.elastic.es_port}'''])
+    elastic_host = f'{settings.elastic.es_scheme}://{settings.elastic.es_host}:{settings.elastic.es_port}'
+    client = AsyncElasticsearch(hosts=[elastic_host])
     try:
         yield client
     finally:

@@ -1,5 +1,22 @@
 version: '3'
+
 services:
+
+  db-file:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: db-file
+  
+  fastapi-file:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: fastapi-file
+  
+  minio:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: minio
+
   db:
     image: postgres:13
     restart: "no"
@@ -89,3 +106,5 @@ volumes:
   static_volume:
   postgres_data:
   esdata:
+  minio_storage: 
+  fileapi_db:
