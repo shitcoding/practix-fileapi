@@ -7,7 +7,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
-@app.get('/')
+@app.get('/fileapi/')
 async def hello():
     return {'Hello': 'FileAPI'} 
 

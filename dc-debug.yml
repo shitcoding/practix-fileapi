@@ -1,5 +1,31 @@
 version: '3'
+
 services:
+
+  db-file:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: db-file
+    ports:
+      - "5433:5432"
+  
+  fastapi-file:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: fastapi-file
+    volumes:
+      - ./fileapi/api/:/opt/app/
+    ports:
+      - "8002:8000"
+    
+  minio:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
   db:
     image: postgres:13
     restart: "no"
@@ -17,7 +43,7 @@ services:
         - ./postgres/init_pg:/docker-entrypoint-initdb.d
         - postgres_data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
 
   nginx:
     build:
@@ -35,8 +61,6 @@ services:
     build: ./fastapi-solution/src
     env_file:
       - ./fastapi-solution/api.env
-    volumes:
-      - ./fastapi-solution/src/:/opt/app/
     depends_on:
       redis:
         condition: service_started
@@ -45,8 +69,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8001:8000"
-
+      - 8001:8000
     volumes:
       - ./fastapi-solution/src/:/opt/app/
 
@@ -101,3 +124,5 @@ volumes:
   static_volume:
   postgres_data:
   esdata:
+  minio_storage: 
+  fileapi_db:

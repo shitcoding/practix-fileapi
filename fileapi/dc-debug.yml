@@ -1,0 +1,31 @@
+version: '3'
+services:
+
+  fastapi-file:
+    extends:
+      file: ./docker-compose.yml
+      service: fastapi-file
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./api/:/opt/app/
+  
+  db-file:
+    extends:
+      file: ./docker-compose.yml
+      service: db-file
+    ports:
+      - "5433:5432"
+    
+  minio:
+    extends:
+      file: ./docker-compose.yml
+      service: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+
+volumes:
+  minio_storage: 
+  fileapi_db:
