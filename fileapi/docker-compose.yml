@@ -19,7 +19,7 @@ services:
 
   fastapi-file:
     restart: always
-    build: ./api/
+    build: .
     env_file:
       - ./api.env 
       

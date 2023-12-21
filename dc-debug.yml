@@ -14,7 +14,7 @@ services:
       file: ./fileapi/docker-compose.yml
       service: fastapi-file
     volumes:
-      - ./fileapi/api/:/opt/app/
+      - ./fileapi/src/:/opt/app/
     ports:
       - "8002:8000"
     
