@@ -38,6 +38,15 @@ async def upload_file(file: UploadFile = File(...)):
         return {'error': str(e)}
 
 
+@app.get('/fileapi/get/{s3_path}')
+async def get_file(s3_path: str):
+    try:
+        streaming_response = await minio_storage.get(s3_path)
+        return streaming_response
+    except Exception as e:
+        return {'error': str(e)}
+
+
 if __name__ == '__main__':
     uvicorn.run(
         'main:app',
