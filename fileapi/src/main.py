@@ -8,12 +8,17 @@ from core.config import settings
 from core.logger import LOGGING
 from db.minio import MinioStorage
 
+from api.v1.films import router as router
+
 app = FastAPI(
     title=settings.project_name,
     docs_url='/fileapi/openapi',
     openapi_url='/fileapi/openapi.json',
     default_response_class=ORJSONResponse,
 )
+
+
+app.include_router(router, prefix='/fileapi/v1/files', tags=['files'])
 
 minio_storage = MinioStorage()
 
