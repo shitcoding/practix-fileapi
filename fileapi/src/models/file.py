@@ -33,6 +33,7 @@ class FileDbModel(Base):
     def __repr__(self) -> str:
         return f'<id {self.id}>'
 
+
 class MinioStorage:
     def __init__(self):
         # код упрощен для демонстрации, правильнее инициализировать соединение один раз 

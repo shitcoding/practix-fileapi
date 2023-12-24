@@ -1,6 +1,7 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Depends
 
 from fileapi.src.db.minio import MinioStorage
+from fileapi.src.service.file import get_file_service, FileService
 
 router = APIRouter()
 
@@ -8,12 +9,12 @@ minio_storage = MinioStorage()
 
 
 @router.post('/upload')
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), file_service: FileService = Depends(get_file_service)):
     try:
         # Use the original filename or generate a new name
         file_name = file.filename
         # Save the file to MinIO
-        result = await minio_storage.save(file, file_name)
+        result = await file_service.save(file=file)
         return {
             'message': 'File uploaded successfully',
             'result': str(result),
