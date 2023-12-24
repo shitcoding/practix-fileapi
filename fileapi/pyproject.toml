@@ -25,6 +25,7 @@ aiofiles = "^23.2.1"
 alembic = "^1.13.1"
 sqlmodel = "^0.0.14"
 asyncpg = "^0.29.0"
+shortuuid = "^1.0.11"
 
 
 [tool.poetry.group.dev.dependencies]
