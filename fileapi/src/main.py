@@ -2,13 +2,13 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import Depends, FastAPI, File, UploadFile
-from fastapi.responses import ORJSONResponse, StreamingResponse
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
+from api.v1.files import router as files_router
 from core.config import settings
 from core.logger import LOGGING
 from db.postgres import init_db
-from services.file import FileService, get_file_service
 
 
 @asynccontextmanager
@@ -28,22 +28,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
-@app.post('/fileapi/upload/')
-async def upload_file(
-    file: UploadFile = File(...),
-    file_service: FileService = Depends(get_file_service),
-):
-    return await file_service.save(file)
-
-
-@app.get('/fileapi/get/{short_name}') # TODO: Maybe change short_name to id
-async def get_file(
-    short_name: str,
-    file_service: FileService = Depends(get_file_service),
-) -> StreamingResponse:
-    return await file_service.get(short_name)
-
+app.include_router(
+    files_router, prefix='/fileapi/api/v1/files', tags=['files']
+)
 
 if __name__ == '__main__':
     uvicorn.run(
