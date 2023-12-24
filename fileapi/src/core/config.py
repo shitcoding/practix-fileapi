@@ -1,20 +1,18 @@
 from logging import config as logging_config
 from pathlib import Path
 
-from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from core.logger import LOGGING
 
-# Настройки логгера
+# Logger config
 logging_config.dictConfig(LOGGING)
 
-# Корень проекта fileapi
+# Base dir of fileapi service
 BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class DataBaseSettings(BaseSettings):
-    # Настройки Postgres БД FileAPI сервиса
     user: str = ...
     password: str = ...
     db: str = ...
@@ -29,7 +27,7 @@ class DataBaseSettings(BaseSettings):
 
     @property
     def url(self):
-        return f'postgresql+psycopg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}'
+        return f'postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}'
 
 
 class MinIOSettings(BaseSettings):
@@ -52,16 +50,17 @@ class MinIOSettings(BaseSettings):
 
 
 class FileAPISettings(BaseSettings):
-    # Настройки FileAPI сервиса
-    project_name: str = 'FileAPI'   # Используется в Swagger-документации
+    project_name: str = 'FileAPI'   # Used in Swagger docs
     project_description: str = 'MinIO S3 file storage API service'
 
     app_port: int = 8000
+    debug: bool = False
 
     db: DataBaseSettings = DataBaseSettings()
     minio: MinIOSettings = MinIOSettings()
 
     model_config = SettingsConfigDict(
+        env_prefix='fileapi_',
         env_file=BASE_DIR / 'api.env',
         extra='ignore',
     )
