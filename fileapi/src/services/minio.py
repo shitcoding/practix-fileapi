@@ -8,9 +8,11 @@ from miniopy_async import Minio
 from miniopy_async.helpers import ObjectWriteResult
 
 from core.config import settings
+from db.minio import get_minio_client
+from services.base import BaseService
 
 
-class MinioStorage:
+class MinioService(BaseService):
     def __init__(self, client: Minio):
         self.client = client
 
@@ -66,3 +68,8 @@ class MinioStorage:
                 'Content-Disposition': 'filename="video.mp4"'
             },  # TODO: replace hardcoded filename
         )
+
+
+async def get_minio_service() -> MinioService:
+    client = await get_minio_client()
+    return MinioService(client)
