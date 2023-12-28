@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from models.file_properties import FilePropertiesCreate
 
 from dependencies import get_file_props_service, get_s3_service
+from models.file_properties import FilePropertiesUpdate
 from services.base import BaseService
 
 
@@ -27,7 +28,7 @@ class FileService(BaseService):
         file_type = file.content_type
         short_name = shortuuid.ShortUUID().random(length=24)
 
-        path_in_storage = f'films/{file_name}'   # TODO: move prefix to config
+        path_in_storage = f'{settings.db.content_prefix}{file_name}'
 
         return FilePropertiesCreate(
             path_in_storage=path_in_storage,
@@ -43,6 +44,12 @@ class FileService(BaseService):
         if not file_properties:
             return {'error': 'File not found'}
         return await self.s3_service.get(file_properties.path_in_storage)
+
+    async def get_info(self, short_name: str) -> StreamingResponse:
+        file_properties = await self.file_properties_service.get(short_name)
+        if not file_properties:
+            return {'error': 'File not found'}
+        return file_properties
 
     async def save(self, file: UploadFile):
         file_properties = await self._get_file_properties(file)

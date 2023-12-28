@@ -19,6 +19,8 @@ class DataBaseSettings(BaseSettings):
     host: str = ...
     port: int = ...
 
+    content_prefix: str = 'films/'
+
     model_config = SettingsConfigDict(
         env_prefix='postgres_',
         env_file=BASE_DIR / 'api.env',
@@ -37,6 +39,7 @@ class MinIOSettings(BaseSettings):
     secret_key: str = ...
     bucket: str = 'files-storage'
     secure: bool = False
+    chunk_size: int = 10 * 1024 * 1024
 
     model_config = SettingsConfigDict(
         env_prefix='minio_',

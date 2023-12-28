@@ -12,8 +12,4 @@ async def get_file_props_service(db_session=Depends(get_session)) -> BaseService
 
 
 async def get_s3_service(s3_client=Depends(get_minio_client)) -> BaseService:
-    client = MinioService(s3_client)
-    try:
-        yield client
-    finally:
-        await client.close()
+    yield MinioService(s3_client)

@@ -40,9 +40,7 @@ class MinioService(BaseService):
                 object_name=path,
                 data=data,
                 length=-1,
-                part_size=10
-                * 1024
-                * 1024,  # TODO: move chunk size to settings
+                part_size=settings.minio.chunk_size
             )
 
         os.remove(temp_file_path)
@@ -62,11 +60,14 @@ class MinioService(BaseService):
             async for chunk in result.content.iter_chunked(32 * 1024):
                 yield chunk
 
+        def _get_filename():
+            return path.rsplit('/', 1)[-1]
+
         return StreamingResponse(
             content=s3_stream(),
             headers={
-                'Content-Disposition': 'filename="video.mp4"'
-            },  # TODO: replace hardcoded filename
+                'Content-Disposition': f'filename="{_get_filename()}"'
+            },
         )
 
 
