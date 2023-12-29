@@ -160,6 +160,7 @@ class PostgresExtractor:
                                 fw.title, 
                                 fw.description, 
                                 fw.rating, 
+                                fw.file,
                                 pfw.role as person_role, 
                                 p.id as person_id,  
                                 p.full_name as person_full_name,

@@ -74,6 +74,10 @@ FILMWORK_MAPPING = {
             "type": "text",
             "analyzer": "ru_en"
           },
+          "file": {
+            "type": "text",
+            "analyzer": "ru_en"
+          },
           "directors": {
             "type": "nested",
             "dynamic": "strict",

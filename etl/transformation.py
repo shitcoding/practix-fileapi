@@ -13,6 +13,7 @@ class Transformer:
                              title=fw.title,
                              imdb_rating=fw.rating,
                              description=fw.description,
+                             file=fw.file,
                              genre=genres,
                              directors=directors,
                              actors=actors,
