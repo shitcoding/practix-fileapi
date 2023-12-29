@@ -16,6 +16,11 @@ services:
       service: db-file
     ports:
       - "5433:5432"
+
+  api-migrations:
+    extends:
+      file: ./docker-compose.yml
+      service: api-migrations
     
   minio:
     extends:

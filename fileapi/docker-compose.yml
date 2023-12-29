@@ -6,7 +6,7 @@ services:
     command:
       - "postgres"
       - "-c"
-      - "search_path=public,content"
+      - "search_path=public,file_api"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U app -d fileapi_db" ]
       interval: 30s
@@ -16,6 +16,17 @@ services:
     volumes:
         - ./pg-db/init_pg:/docker-entrypoint-initdb.d
         - fileapi_db:/var/lib/postgresql/data
+
+  api-migrations:
+    build:
+      context: ./alembic
+    restart: 'no'
+    volumes:
+      - ./:/usr/src/app/
+    depends_on:
+      db-file:
+        condition: service_healthy
+    command: alembic upgrade head
 
   fastapi-file:
     restart: always

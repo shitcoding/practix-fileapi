@@ -1,0 +1,17 @@
+FROM python:3.11.5
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt update && apt install gcc
+RUN pip install --upgrade pip
+
+ENV TZ=Europe/Moscow
+RUN apt install tzdata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY requirements.txt ./
+
+RUN pip install -r ./requirements.txt
+
+COPY . .

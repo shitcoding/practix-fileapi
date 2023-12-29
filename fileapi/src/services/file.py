@@ -6,10 +6,10 @@ import shortuuid
 from fastapi import Depends, UploadFile
 from fastapi.responses import StreamingResponse
 
+from core.config import settings
+from fileapi_dependencies import get_file_props_service, get_s3_service
 from models.file_properties import FilePropertiesCreate
 
-from dependencies import get_file_props_service, get_s3_service
-from models.file_properties import FilePropertiesUpdate
 from services.base import BaseService
 
 
