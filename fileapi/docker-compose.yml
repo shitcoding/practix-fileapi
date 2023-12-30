@@ -19,10 +19,8 @@ services:
 
   api-migrations:
     build:
-      context: ./alembic
-    restart: 'no'
-    volumes:
-      - ./:/usr/src/app/
+      context: .
+    restart: no
     depends_on:
       db-file:
         condition: service_healthy
