@@ -62,7 +62,7 @@ class MinioService(BaseService):
         return StreamingResponse(
             content=s3_stream(),
             headers={
-                'Content-Disposition': f'filename="{path.rsplit('/', 1)[-1]}"'
+                'Content-Disposition': 'filename="{}"'.format(path.rsplit('/', 1)[-1])
             },
         )
 
