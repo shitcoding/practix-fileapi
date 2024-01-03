@@ -1,6 +1,5 @@
-from miniopy_async import Minio
-
 from core.config import settings
+from miniopy_async import Minio
 
 
 async def get_minio_client() -> Minio:

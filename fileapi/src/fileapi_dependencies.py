@@ -1,7 +1,6 @@
-from fastapi import Depends
-
 from db.minio import get_minio_client
 from db.postgres import get_session
+from fastapi import Depends
 from services.base import BaseService
 from services.file_properties import FilePropertiesService
 from services.minio import MinioService

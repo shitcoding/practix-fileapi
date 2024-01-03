@@ -2,13 +2,12 @@ import os
 
 import aiofiles
 from aiohttp import ClientSession
+from core.config import settings
+from db.minio import get_minio_client
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from miniopy_async import Minio
 from miniopy_async.helpers import ObjectWriteResult
-
-from core.config import settings
-from db.minio import get_minio_client
 from services.base import BaseService
 
 

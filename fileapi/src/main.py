@@ -1,13 +1,11 @@
 import logging
-from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
-
 from api.v1.files import router as files_router
 from core.config import settings
 from core.logger import LOGGING
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
     title=settings.project_name,

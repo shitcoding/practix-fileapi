@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi.responses import StreamingResponse
-
-from services.file import FileService, get_file_service
-
 from models.file_properties import FilePropertiesRead
+from services.file import FileService, get_file_service
 
 router = APIRouter()
 

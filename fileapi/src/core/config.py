@@ -1,9 +1,8 @@
 from logging import config as logging_config
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
 from core.logger import LOGGING
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Logger config
 logging_config.dictConfig(LOGGING)

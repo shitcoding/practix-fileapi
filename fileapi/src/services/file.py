@@ -4,14 +4,11 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import shortuuid
-from fastapi import Depends, UploadFile, HTTPException
-from fastapi.openapi.models import Response
-from fastapi.responses import StreamingResponse
-
 from core.config import settings
+from fastapi import Depends, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from fileapi_dependencies import get_file_props_service, get_s3_service
 from models.file_properties import FilePropertiesCreate, FilePropertiesRead
-
 from services.base import BaseService
 
 
