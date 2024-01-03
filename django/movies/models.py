@@ -3,6 +3,7 @@ import uuid
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from movies.storage import CustomStorage
 from psqlextra.indexes import UniqueIndex
 
 
@@ -55,7 +56,7 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
     description = models.TextField(_('description'),
                                    blank=True, null=True)
     file_path = models.FileField(_('file_path'),
-                                 blank=True, null=True, upload_to='movies/')
+                                 blank=True, null=True, storage=CustomStorage,)
     creation_date = models.DateTimeField(_('creation_date'),
                                          blank=True, null=True)
     rating = models.FloatField(_('rating'),
