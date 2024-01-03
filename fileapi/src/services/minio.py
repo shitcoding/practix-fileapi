@@ -2,13 +2,12 @@ import os
 
 import aiofiles
 from aiohttp import ClientSession
+from core.config import settings
+from db.minio import get_minio_client
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from miniopy_async import Minio
 from miniopy_async.helpers import ObjectWriteResult
-
-from core.config import settings
-from db.minio import get_minio_client
 from services.base import BaseService
 
 
@@ -40,9 +39,7 @@ class MinioService(BaseService):
                 object_name=path,
                 data=data,
                 length=-1,
-                part_size=10
-                * 1024
-                * 1024,  # TODO: move chunk size to settings
+                part_size=settings.minio.chunk_size
             )
 
         os.remove(temp_file_path)
@@ -65,8 +62,8 @@ class MinioService(BaseService):
         return StreamingResponse(
             content=s3_stream(),
             headers={
-                'Content-Disposition': 'filename="video.mp4"'
-            },  # TODO: replace hardcoded filename
+                'Content-Disposition': 'filename="{}"'.format(path.rsplit('/', 1)[-1])
+            },
         )
 
 

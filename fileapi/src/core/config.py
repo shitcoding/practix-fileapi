@@ -1,9 +1,8 @@
 from logging import config as logging_config
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
 from core.logger import LOGGING
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Logger config
 logging_config.dictConfig(LOGGING)
@@ -18,6 +17,8 @@ class DataBaseSettings(BaseSettings):
     db: str = ...
     host: str = ...
     port: int = ...
+
+    content_prefix: str = 'films/'
 
     model_config = SettingsConfigDict(
         env_prefix='postgres_',
@@ -37,6 +38,7 @@ class MinIOSettings(BaseSettings):
     secret_key: str = ...
     bucket: str = 'files-storage'
     secure: bool = False
+    chunk_size: int = 10 * 1024 * 1024
 
     model_config = SettingsConfigDict(
         env_prefix='minio_',

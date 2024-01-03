@@ -11,7 +11,12 @@ services:
     extends:
       file: ./fileapi/docker-compose.yml
       service: fastapi-file
-  
+
+  api-migrations:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: api-migrations
+
   minio:
     extends:
       file: ./fileapi/docker-compose.yml
