@@ -25,7 +25,7 @@ async def get_file(
 
 
 @router.get('/get_info/{short_name}')
-async def get_file(
+async def get_file_info(
     short_name: str,
     file_service: FileService = Depends(get_file_service),
 ) -> FilePropertiesRead:

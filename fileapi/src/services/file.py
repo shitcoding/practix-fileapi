@@ -1,14 +1,16 @@
 import os
 from datetime import datetime
 from functools import lru_cache
+from http import HTTPStatus
 
 import shortuuid
-from fastapi import Depends, UploadFile
+from fastapi import Depends, UploadFile, HTTPException
+from fastapi.openapi.models import Response
 from fastapi.responses import StreamingResponse
 
 from core.config import settings
 from fileapi_dependencies import get_file_props_service, get_s3_service
-from models.file_properties import FilePropertiesCreate
+from models.file_properties import FilePropertiesCreate, FilePropertiesRead
 
 from services.base import BaseService
 
@@ -22,7 +24,8 @@ class FileService(BaseService):
         self.file_properties_service = file_properties_service
         self.s3_service = s3_service
 
-    async def _get_file_properties(self, file: UploadFile) -> FilePropertiesCreate:
+    @staticmethod
+    async def _get_file_properties(file: UploadFile) -> FilePropertiesCreate:
         file_size = os.fstat(file.file.fileno()).st_size
         file_name = file.filename
         file_type = file.content_type
@@ -34,21 +37,21 @@ class FileService(BaseService):
             path_in_storage=path_in_storage,
             filename=file_name,
             size=file_size,
-            file_type=file_type, # TODO: Fix detection of file_type (currently is None)
+            file_type=file_type,
             short_name=short_name,
             created_at=datetime.utcnow(),
         )
 
-    async def get(self, short_name: str) -> StreamingResponse:
+    async def get(self, short_name: str) -> StreamingResponse | HTTPException:
         file_properties = await self.file_properties_service.get(short_name)
         if not file_properties:
-            return {'error': 'File not found'}
+            return HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='File not found')
         return await self.s3_service.get(file_properties.path_in_storage)
 
-    async def get_info(self, short_name: str) -> StreamingResponse:
+    async def get_info(self, short_name: str) -> FilePropertiesRead | HTTPException:
         file_properties = await self.file_properties_service.get(short_name)
         if not file_properties:
-            return {'error': 'File not found'}
+            return HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='File not found')
         return file_properties
 
     async def save(self, file: UploadFile):

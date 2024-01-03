@@ -60,13 +60,10 @@ class MinioService(BaseService):
             async for chunk in result.content.iter_chunked(32 * 1024):
                 yield chunk
 
-        def _get_filename():
-            return path.rsplit('/', 1)[-1]
-
         return StreamingResponse(
             content=s3_stream(),
             headers={
-                'Content-Disposition': f'filename="{_get_filename()}"'
+                'Content-Disposition': f'filename="{path.rsplit('/', 1)[-1]}"'
             },
         )
 
