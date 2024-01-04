@@ -93,6 +93,9 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-include(
-    'components/drf.py'
-)
+include('components/drf.py')
+
+# Files storage settings
+FILEAPI_HOST = os.getenv('FILEAPI_HOST')
+FILEAPI_UPLOAD_URL = os.getenv('FILEAPI_UPLOAD_URL')
+FILEAPI_DOWNLOAD_URL = os.getenv('FILEAPI_DOWNLOAD_URL')

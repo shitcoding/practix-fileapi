@@ -13,10 +13,13 @@ services:
     extends:
       file: ./fileapi/docker-compose.yml
       service: fastapi-file
-    volumes:
-      - ./fileapi/api/:/opt/app/
     ports:
       - "8002:8000"
+
+  api-migrations:
+    extends:
+      file: ./fileapi/docker-compose.yml
+      service: api-migrations
     
   minio:
     extends:
