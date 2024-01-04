@@ -74,7 +74,7 @@ FILMWORK_MAPPING = {
             "type": "text",
             "analyzer": "ru_en"
           },
-          "file": {
+          "file_path": {
             "type": "text",
             "analyzer": "ru_en"
           },

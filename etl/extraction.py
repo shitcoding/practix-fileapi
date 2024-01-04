@@ -111,7 +111,7 @@ class PostgresExtractor:
         for fw in film_works:
             if not fw['fw_id'] in res:
                 film_work = FilmWork(id=UUID(fw['fw_id']), title=fw['title'], description=fw['description'],
-                                     rating=fw['rating'])
+                                     rating=fw['rating'], file_path=fw['file_path'])
                 res[fw["fw_id"]] = film_work
 
             if (not fw['person_id'] in res[fw["fw_id"]].persons
@@ -160,7 +160,7 @@ class PostgresExtractor:
                                 fw.title, 
                                 fw.description, 
                                 fw.rating, 
-                                fw.file,
+                                fw.file_path,
                                 pfw.role as person_role, 
                                 p.id as person_id,  
                                 p.full_name as person_full_name,
