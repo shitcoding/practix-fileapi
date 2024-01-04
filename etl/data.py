@@ -39,6 +39,7 @@ class FilmWork(Data):
     title:          str
     description:    str
     rating:         float
+    file_path:      str
     genres:         Dict[str, Genre] = field(default_factory=dict)
     persons:        Dict[str, Person] = field(default_factory=dict)
 
@@ -63,6 +64,7 @@ class ESData:
     title:          str
     description:    str
     directors:      list[ESPerson]
+    file_path:      str
     actors_names:   list[str]
     writers_names:  list[str]
     actors:         List[ESPerson]

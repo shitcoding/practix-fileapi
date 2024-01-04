@@ -4,6 +4,7 @@ TEST_MOVIE_DATA = {
   "imdb_rating": 5,
   "title": "Dancing Star",
   "description": "",
+  "file_path": "",
   "genre": [
     {
       "uuid": "9c91a5b2-eb70-4889-8581-ebe427370edd",
