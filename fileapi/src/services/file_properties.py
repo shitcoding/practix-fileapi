@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 
-from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db.postgres import get_db_session
 from models.file_properties import FileProperties, FilePropertiesCreate
 
 
