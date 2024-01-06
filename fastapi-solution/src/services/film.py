@@ -30,7 +30,8 @@ class FilmService(Service):
             if not film:
                 return None
             await self._put_film_to_cache(film)
-
+        if film.file_path:
+            film.file_path = '/fileapi/api/v1/files/download-stream/'+film.file_path
         return film
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
