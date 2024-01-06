@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi.responses import StreamingResponse
+
 from models.file_properties import FilePropertiesRead
-from services.file import FileService, get_file_service
+from services.file import FileServiceABC
 
 router = APIRouter()
 
@@ -9,7 +10,7 @@ router = APIRouter()
 @router.post('/upload/')
 async def upload_file(
     file: UploadFile = File(...),
-    file_service: FileService = Depends(get_file_service),
+    file_service: FileServiceABC = Depends(),
 ):
     return await file_service.save(file)
 
@@ -17,7 +18,7 @@ async def upload_file(
 @router.get('/download-stream/{short_name}')
 async def get_file(
     short_name: str,
-    file_service: FileService = Depends(get_file_service),
+    file_service: FileServiceABC = Depends(),
 ) -> StreamingResponse:
     return await file_service.get(short_name)
 
@@ -25,6 +26,6 @@ async def get_file(
 @router.get('/get_info/{short_name}')
 async def get_file_info(
     short_name: str,
-    file_service: FileService = Depends(get_file_service),
+    file_service: FileServiceABC = Depends(),
 ) -> FilePropertiesRead:
     return await file_service.get_info(short_name)
