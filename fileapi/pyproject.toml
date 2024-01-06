@@ -26,6 +26,10 @@ alembic = "^1.13.1"
 sqlmodel = "^0.0.14"
 asyncpg = "^0.29.0"
 shortuuid = "^1.0.11"
+pytest = "^7.4.4"
+pytest-asyncio = "^0.23.3"
+pytest-mock = "^3.12.0"
+httpx = "^0.26.0"
 
 
 [tool.poetry.group.dev.dependencies]
