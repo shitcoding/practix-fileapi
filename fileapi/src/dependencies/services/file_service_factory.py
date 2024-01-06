@@ -8,7 +8,7 @@ from dependencies.services.file_properties_service_factory import \
 from dependencies.services.minio_service_factory import create_minio_service
 from services.file import FileService, FileServiceABC
 from services.file_properties import FilePropertiesServiceABC
-from services.minio import S3ServiceABC
+from services.s3 import S3ServiceABC
 
 
 @add_factory_to_mapper(FileServiceABC)

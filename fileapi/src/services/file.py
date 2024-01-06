@@ -10,8 +10,8 @@ from fastapi.responses import StreamingResponse
 from core.config import settings
 from models.file_properties import FilePropertiesCreate, FilePropertiesRead
 from services.file_properties import FilePropertiesServiceABC
-# TODO: rename services.minio to services.s3
-from services.minio import S3ServiceABC
+# TODO: rename services.s3 to services.s3
+from services.s3 import S3ServiceABC
 
 
 class FileServiceABC(ABC):
