@@ -10,6 +10,7 @@ class Film(IdMix):
     imdb_rating: Optional[Union[str, float]]
     title: Optional[str]
     description: Optional[str]
+    file_path: Optional[str]
     genre: list[Genre]
     directors: Optional[list[Person]]
     actors: Optional[list[Person]]
