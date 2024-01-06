@@ -1,22 +1,44 @@
 import os
+from abc import ABC, abstractmethod
 from datetime import datetime
-from functools import lru_cache
 from http import HTTPStatus
 
 import shortuuid
-from core.config import settings
-from fastapi import Depends, HTTPException, UploadFile
+from fastapi import HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-from fileapi_dependencies import get_file_props_service, get_s3_service
+
+from core.config import settings
 from models.file_properties import FilePropertiesCreate, FilePropertiesRead
-from services.base import BaseService
+from services.file_properties import FilePropertiesServiceABC
+# TODO: rename services.minio to services.s3
+from services.minio import S3ServiceABC
 
 
-class FileService(BaseService):
+class FileServiceABC(ABC):
+    """Abstract base class for uploading/getting the files."""
+
+    @abstractmethod
+    async def get(self, short_name: str) -> StreamingResponse | HTTPException:
+        ...
+
+    @abstractmethod
+    async def get_info(
+        self, short_name: str
+    ) -> FilePropertiesRead | HTTPException:
+        ...
+
+    @abstractmethod
+    async def save(self, file: UploadFile) -> dict:
+        ...
+
+
+class FileService(FileServiceABC):
+    """File service implementation based on Postgres and Minio services."""
+
     def __init__(
         self,
-        file_properties_service: BaseService,
-        s3_service: BaseService,
+        file_properties_service: FilePropertiesServiceABC,
+        s3_service: S3ServiceABC,
     ):
         self.file_properties_service = file_properties_service
         self.s3_service = s3_service
@@ -42,13 +64,19 @@ class FileService(BaseService):
     async def get(self, short_name: str) -> StreamingResponse | HTTPException:
         file_properties = await self.file_properties_service.get(short_name)
         if not file_properties:
-            return HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='File not found')
+            return HTTPException(
+                status_code=HTTPStatus.NOT_FOUND, detail='File not found'
+            )
         return await self.s3_service.get(file_properties.path_in_storage)
 
-    async def get_info(self, short_name: str) -> FilePropertiesRead | HTTPException:
+    async def get_info(
+        self, short_name: str
+    ) -> FilePropertiesRead | HTTPException:
         file_properties = await self.file_properties_service.get(short_name)
         if not file_properties:
-            return HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='File not found')
+            return HTTPException(
+                status_code=HTTPStatus.NOT_FOUND, detail='File not found'
+            )
         return file_properties
 
     async def save(self, file: UploadFile):
@@ -63,11 +91,3 @@ class FileService(BaseService):
             'message': 'File uploaded successfully',
             'file_properties': db_file_properties,
         }
-
-
-@lru_cache
-def get_file_service(
-    file_properties_service: BaseService = Depends(get_file_props_service),
-    s3_service: BaseService = Depends(get_s3_service),
-) -> FileService:
-    return FileService(file_properties_service, s3_service)

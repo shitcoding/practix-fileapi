@@ -1,12 +1,28 @@
-from db.postgres import get_session
+from abc import ABC, abstractmethod
+
 from fastapi import Depends
-from models.file_properties import FileProperties, FilePropertiesCreate
-from services.base import BaseService
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from db.postgres import get_session
+from models.file_properties import FileProperties, FilePropertiesCreate
 
-class FilePropertiesService(BaseService):
+
+class FilePropertiesServiceABC(ABC):
+    """Abstract base class for file properties storage."""
+
+    @abstractmethod
+    async def save(self, *args, **kwargs) -> FileProperties:
+        ...
+
+    @abstractmethod
+    async def get(self, *args, **kwargs) -> FileProperties:
+        ...
+
+
+class FilePropertiesService(FilePropertiesServiceABC):
+    """Class implementing postgres based file properties storage."""
+
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
@@ -32,9 +48,3 @@ class FilePropertiesService(BaseService):
         result = await self.db_session.exec(query)
         file_properties = result.one_or_none()
         return file_properties
-
-
-def get_file_properties_service(
-    db_session: AsyncSession = Depends(get_session),
-) -> FilePropertiesService:
-    return FilePropertiesService(db_session)

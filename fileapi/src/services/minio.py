@@ -1,17 +1,31 @@
 import os
+from abc import ABC, abstractmethod
 
 import aiofiles
 from aiohttp import ClientSession
-from core.config import settings
-from db.minio import get_minio_client
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from miniopy_async import Minio
 from miniopy_async.helpers import ObjectWriteResult
-from services.base import BaseService
+
+from core.config import settings
 
 
-class MinioService(BaseService):
+class S3ServiceABC(ABC):
+    """Abstract base class for S3 storage services."""
+
+    @abstractmethod
+    async def save(self, *args, **kwargs) -> ObjectWriteResult:
+        ...
+
+    @abstractmethod
+    async def get(self, *args, **kwargs) -> StreamingResponse:
+        ...
+
+
+class MinioService(S3ServiceABC):
+    """Class implementing S3 Minio based storage."""
+
     def __init__(self, client: Minio):
         self.client = client
 
@@ -39,7 +53,7 @@ class MinioService(BaseService):
                 object_name=path,
                 data=data,
                 length=-1,
-                part_size=settings.minio.chunk_size
+                part_size=settings.minio.chunk_size,
             )
 
         os.remove(temp_file_path)
@@ -62,11 +76,8 @@ class MinioService(BaseService):
         return StreamingResponse(
             content=s3_stream(),
             headers={
-                'Content-Disposition': 'filename="{}"'.format(path.rsplit('/', 1)[-1])
+                'Content-Disposition': 'filename="{}"'.format(
+                    path.rsplit('/', 1)[-1]
+                )
             },
         )
-
-
-async def get_minio_service() -> MinioService:
-    client = await get_minio_client()
-    return MinioService(client)
