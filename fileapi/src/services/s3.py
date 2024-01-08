@@ -1,7 +1,7 @@
-import os
 from abc import ABC, abstractmethod
 
 import aiofiles
+from aiofiles.os import remove as aiofiles_remove
 from aiohttp import ClientSession
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
@@ -56,7 +56,7 @@ class MinioService(S3ServiceABC):
                 part_size=settings.minio.chunk_size,
             )
 
-        os.remove(temp_file_path)
+        aiofiles_remove(temp_file_path)
 
         return result
 
