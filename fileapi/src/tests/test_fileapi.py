@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 
 from models.file_properties import FilePropertiesRead
 from services.file import FileServiceABC
+from http import HTTPStatus
 
 
 @pytest.mark.asyncio
@@ -24,7 +25,7 @@ async def test_upload_file(async_client, mocker, app_fixture):
         '/fileapi/api/v1/files/upload/', files=data
     )
 
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'File uploaded successfully'}
 
 
@@ -45,7 +46,7 @@ async def test_get_file(async_client, mocker, app_fixture):
         '/fileapi/api/v1/files/download-stream/testfile'
     )
 
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert await response.aread() == b'test data'
 
 
@@ -70,5 +71,5 @@ async def test_get_file_info(async_client, mocker, app_fixture):
         '/fileapi/api/v1/files/get_info/testfile'
     )
 
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert isinstance(response.json(), dict)
